@@ -1,0 +1,63 @@
+# TimeControl by Alex_qp
+# By using this plugin you can control the daycycle of minecraft.
+
+# Set this to true if you are finished with configuration. Then restart your server.
+# Note: After restarting the plugin will proceed to disable gamerule do_daylight_cycle of all worlds which where not disabled down below.
+configured: false
+
+# Set the delay between to time updates in ticks.
+check-delay: 5
+
+# Set to false if time in empty worlds should proceed.
+deactivate_empty_worlds: true
+
+# If no other values are set correctly in the worldConfiguration.yml for a enabled world these values will be applied for this world.
+# For 99% of people the minecraft-... options are completely irrelevant. If you want to in- or decrease day or night, just edit day-length and night-length.
+# For more information please visit the plugin's page at https://www.spigotmc.org/resources/timecontrol-1-13-x-1-14-x-50-off-for-the-first-10-buyers.70363/ and look under How-To
+default_world_settings:
+  minecraft-day-start-tick: 0
+  minecraft-day-length: 12000
+  day-length: 24000
+  night-length: 7000
+  needed-sleep-percentage: 0.5
+  sleeping-time-multiplier: 20
+  storm-time-subtrahend: 500
+
+# Disable certain worlds by name or environment.
+world_exceptions:
+  by_name:
+    # - world
+    # - world_nether
+    # - world_the_end
+  by_environment:
+    normal: false
+    nether: true
+    the_end: true
+
+# Set to true if you want players in the specific gamemode to be counted as sleeping.
+gamemode_sleeping:
+  adventure: false
+  creative: true
+  spectator: true
+  survival: false
+
+# If set to true and Essentials flags a player as afk he will count as sleeping. You obviously have to install Essentials aka. EssentialsX in order for this to work. https://github.com/EssentialsX/Essentials/releases
+essentials:
+  afk_is_sleeping: false
+
+messages:
+  credits: "Use /timecontrol help for all available commands."
+  help:
+    header: "List of all available commands:"
+    reload: "Reloads the plugin."
+    set: "Sets the specified option."
+    debug: "Shows some debug messages."
+    uninstall: "Re-enables all gamerules and disables the plugin."
+  noPerm: "&4You do not have permission."
+  wrongCmdUsage:
+    prefix: "&CUsage:"
+    noSubCmd: "&CNo such (sub-)command. Use /timecontrol help for all available commands."
+  setCmd:
+    success: "&2value successfully changed."
+    invalidValue: "&Cvalue is not allowed for that option."
+

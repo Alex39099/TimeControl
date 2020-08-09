@@ -1,0 +1,71 @@
+main: com.github.alexqp.timecontrol.main.TimeControl
+name: ${project.parent.name}
+version: ${project.parent.version}
+author: alexqp
+description: ${project.parent.description}
+api-version: "1.16"
+softdepend: [Essentials]
+website: ${project.parent.url}
+
+commands:
+  timecontrol:
+    description: All commands
+    aliases: [tc]
+
+permissions:
+  timecontrol.*:
+    description: Gives access to all TimeControl commands.
+    default: false
+    children:
+      timecontrol.reload: true
+      timecontrol.debug: true
+      timecontrol.edit: true
+      timecontrol.change.*: true
+
+  timecontrol.reload:
+    description: Allows you to reload the plugin.
+    default: op
+
+  timecontrol.debug:
+    description: Allows you to use the debug command.
+    default: op
+
+  timecontrol.edit:
+    description: Allows to change values.
+    default: op
+
+  timecontrol.change.*:
+    description: Gives access to all commands for specific value changes.
+    default: false
+    children:
+      timecontrol.change.mcdaylength: true
+      timecontrol.change.mcdaystart: true
+      timecontrol.change.daylength: true
+      timecontrol.change.nightlength: true
+      timecontrol.change.sleeppercentage: true
+      timecontrol.change.sleeptimemultiplier: true
+
+  timecontrol.change.mcdaylength:
+    description: Allows to set the specific value minecraft-day-length
+  timecontrol.change.mcdaystart:
+    description: Allows to set the specific value minecraft-day-start-tick
+    default: op
+  timecontrol.change.daylength:
+    description: Allows to set the specific value day-length
+    default: op
+  timecontrol.change.nightlength:
+    description: Allows to set the specific value night-length
+    default: op
+  timecontrol.change.sleeppercentage:
+    description: Allows to set the specific value needed-sleep-percentage
+    default: op
+  timecontrol.change.sleeptimemultiplier:
+    description: Allows to set the specific value sleeping-time-multiplier
+    default: op
+  timecontrol.change.stormtimesubtrahend:
+    description: Allows to set the specific value storm-time-subtrahend
+    default: op
+
+  timecontrol.sleepingignored:
+    description: Allows to be always counted as sleeping player (only in affected worlds).
+    default: false
