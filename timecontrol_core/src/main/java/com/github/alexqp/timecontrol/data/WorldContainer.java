@@ -36,10 +36,14 @@ public class WorldContainer {
     }
 
     public boolean isConfigEnabled(World world) {
-        return this.configWorldMap.containsKey(world.getName());
+        if (world != null)
+            return this.configWorldMap.containsKey(world.getName());
+        return false;
     }
     public boolean isEnabled(World world) {
-        return !(deactivateEmptyWorlds && world.getPlayers().isEmpty());
+        if (world != null)
+            return !(deactivateEmptyWorlds && world.getPlayers().isEmpty());
+        return false;
     }
 
     public Set<String> getConfigWorldNames() {
