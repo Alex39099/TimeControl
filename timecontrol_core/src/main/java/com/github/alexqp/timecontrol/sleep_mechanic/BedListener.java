@@ -1,4 +1,4 @@
-package com.github.alexqp.timecontrol.listeners;
+package com.github.alexqp.timecontrol.sleep_mechanic;
 
 
 import com.github.alexqp.commons.messages.ConsoleMessage;
@@ -10,26 +10,22 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import com.github.alexqp.timecontrol.data.WorldContainer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class BedListener implements Listener {
 
-    private final long sleepDelay = 101;
+    private final int sleepDelay = 101;
 
     private JavaPlugin plugin;
-    private WorldContainer worldContainer;
+    private SleepObserver sleepObserver;
 
     private Map<String, Map<UUID, BukkitRunnable>> leaveBedPlayers = new HashMap<>();
 
-    public BedListener(JavaPlugin plugin, WorldContainer container) {
+    public BedListener(@NotNull JavaPlugin plugin, @NotNull SleepObserver sleepObserver) {
         this.plugin = plugin;
-        this.worldContainer = container;
-    }
-
-    public void setWorldContainer(WorldContainer container) {
-        this.worldContainer = container;
+        this.sleepObserver = sleepObserver;
     }
 
     private boolean hasAlreadyLeftBed(Player p) {
@@ -61,14 +57,14 @@ public class BedListener implements Listener {
         worldLeaveBedPlayers.put(p.getUniqueId(), runnable);
         runnable.runTaskLater(plugin, sleepDelay);
 
-        worldContainer.getTimeWorldForWorld(p.getWorld()).removeSleepingPlayer(p);
+        sleepObserver.removeSleepingPlayer(p);
         ConsoleMessage.debug(this.getClass(), plugin, "removed sleeping player " + p.getName() + " for world " + p.getWorld().getName());
     }
 
     @EventHandler
     private void onBedLeave(PlayerBedLeaveEvent e) {
         ConsoleMessage.debug(this.getClass(), plugin, "BedLeave fired!");
-        if (worldContainer.isConfigEnabled(e.getPlayer().getWorld())) {
+        if (sleepObserver.isSleepObserved(e.getPlayer().getWorld())) {
             this.addLeaveBedPlayer(e.getPlayer());
         }
     }
@@ -76,15 +72,14 @@ public class BedListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void onBedEnter(PlayerBedEnterEvent e) {
         ConsoleMessage.debug(this.getClass(), plugin, "BedEnter fired!");
-        if (worldContainer.isConfigEnabled(e.getPlayer().getWorld())) {
+        Player p = e.getPlayer();
+        if (sleepObserver.isSleepObserved(p.getWorld())) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    Player p = e.getPlayer();
-
                     if (!hasAlreadyLeftBed(p)) {
-                        worldContainer.getTimeWorldForWorld(p.getWorld()).addSleepingPlayer(p);
                         ConsoleMessage.debug(BedListener.class, plugin, "added sleeping player " + p.getName() + " for world " + p.getWorld().getName());
+                        sleepObserver.addSleepingPlayer(p);
                     } else {
                         ConsoleMessage.debug(BedListener.class, plugin, "did not add sleeping player " + p.getName() + " bc he left the bed beforehand.");
                     }

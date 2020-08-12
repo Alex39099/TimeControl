@@ -14,13 +14,13 @@ commands:
 
 permissions:
   timecontrol.*:
-    description: Gives access to all TimeControl commands.
+    description: Gives access to all TimeControl commands (except uninstall).
     default: false
     children:
       timecontrol.reload: true
       timecontrol.debug: true
-      timecontrol.edit: true
-      timecontrol.change.*: true
+      timecontrol.set: true
+      timecontrol.set.*: true
 
   timecontrol.reload:
     description: Allows you to reload the plugin.
@@ -30,42 +30,52 @@ permissions:
     description: Allows you to use the debug command.
     default: op
 
-  timecontrol.edit:
+  timecontrol.set:
     description: Allows to change values.
     default: op
 
-  timecontrol.change.*:
+  timecontrol.set.*:
     description: Gives access to all commands for specific value changes.
     default: false
     children:
-      timecontrol.change.mcdaylength: true
-      timecontrol.change.mcdaystart: true
-      timecontrol.change.daylength: true
-      timecontrol.change.nightlength: true
-      timecontrol.change.sleeppercentage: true
-      timecontrol.change.sleeptimemultiplier: true
+      timecontrol.set.mcdaylength: true
+      timecontrol.set.mcdaystart: true
+      timecontrol.set.daylength: true
+      timecontrol.set.nightlength: true
+      timecontrol.set.neededsleeppercentage: true
+      timecontrol.set.sleepingnighttimemultiplier: true
+      timecontrol.set.sleepingstormtimemultiplier: true
 
-  timecontrol.change.mcdaylength:
+  timecontrol.set.mcdaylength:
     description: Allows to set the specific value minecraft-day-length
-  timecontrol.change.mcdaystart:
+    default: op
+  timecontrol.set.mcdaystart:
     description: Allows to set the specific value minecraft-day-start-tick
     default: op
-  timecontrol.change.daylength:
+  timecontrol.set.daylength:
     description: Allows to set the specific value day-length
     default: op
-  timecontrol.change.nightlength:
+  timecontrol.set.nightlength:
     description: Allows to set the specific value night-length
     default: op
-  timecontrol.change.sleeppercentage:
+  timecontrol.set.neededsleeppercentage:
     description: Allows to set the specific value needed-sleep-percentage
     default: op
-  timecontrol.change.sleeptimemultiplier:
+  timecontrol.set.sleepingnighttimemultiplier:
     description: Allows to set the specific value sleeping-time-multiplier
     default: op
-  timecontrol.change.stormtimesubtrahend:
+  timecontrol.set.sleepingstormtimemultiplier:
     description: Allows to set the specific value storm-time-subtrahend
     default: op
 
   timecontrol.sleepingignored:
     description: Allows to be always counted as sleeping player (only in affected worlds).
     default: false
+
+  timecontrol.sleep.actionbar:
+    description: Allows to be notified by sleeping players via actionbar.
+    default: true
+
+  timecontrol.sleep.chat:
+    description: Allows to be notified by sleeping players via chat.
+    default: true

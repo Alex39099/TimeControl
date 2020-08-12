@@ -1,190 +1,209 @@
 package com.github.alexqp.timecontrol.data;
 
+import com.github.alexqp.commons.messages.ConsoleMessage;
 import com.google.common.collect.Range;
 import com.github.alexqp.commons.config.ConfigChecker;
 import com.github.alexqp.commons.config.ConfigurationSerializableCheckable;
 import com.github.alexqp.commons.config.ConsoleErrorType;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class TimeWorld extends ConfigurationSerializableCheckable {
+public class TimeWorld implements ConfigurationSerializableCheckable {
 
-    private static final String[] configNames = {"minecraft-day-start-tick", "minecraft-day-length", "day-length", "night-length", "needed-sleep-percentage", "sleeping-time-multiplier", "storm-time-subtrahend"};
 
-    public static String[] getConfigNamesCopy() {
-        return configNames.clone();
+    public static class Stat<T extends Comparable<T>> {
+
+        public static final Stat<Integer> DEFAULT_DAY_LENGTH = new Stat<>("mcdaylength", "minecraft-day-length", 12000, Range.closed(0, 24000));
+        public static final Stat<Integer> DAY_START_TICK = new Stat<>("mcdaystart", "minecraft-day-start-tick", 0, Range.closed(0, 24000 - DEFAULT_DAY_LENGTH.getDefValue()));
+        public static final Stat<Integer> DAY_LENGTH = new Stat<>("daylength", "day-length", 24000, Range.atLeast(1));
+        public static final Stat<Integer> NIGHT_LENGTH = new Stat<>("nightlength", "night-length", 7000, Range.atLeast(1));
+        public static final Stat<Double> NEEDED_SLEEP_PERCENTAGE = new Stat<>("neededsleeppercentage", "needed-sleep-percentage", 0.5, Range.closed(0.0, 1.0));
+        public static final Stat<Integer> NIGHT_TIME_MULTIPLIER = new Stat<>("sleepingnighttimemultiplier", "sleeping-night-time-multiplier", 20, Range.atLeast(-1));
+        public static final Stat<Integer> STORM_TIME_MULTIPLIER = new Stat<>("sleepingstormtimemultiplier", "sleeping-storm-time-multiplier", 60, Range.atLeast(-1));
+        // wanna add sth? -> Do not forget getMethod, setMethod, setValueByStat, getPrefixes, toString!
+
+        private static final List<Stat<?>> values = new ArrayList<Stat<?>>() {{
+            add(DEFAULT_DAY_LENGTH);
+            add(DAY_START_TICK);
+            add(DAY_LENGTH);
+            add(NIGHT_LENGTH);
+            add(NEEDED_SLEEP_PERCENTAGE);
+            add(NIGHT_TIME_MULTIPLIER);
+            add(STORM_TIME_MULTIPLIER);
+            this.sort(Comparator.comparing(Stat::getName));
+        }};
+
+        @NotNull
+        public static List<Stat<?>> values() {
+            return values;
+        }
+
+        private final String name;
+        private final String configName;
+        private T defValue;
+        private final Range<T> range;
+
+        private Stat(@NotNull String name, @NotNull String configName, @NotNull T defValue, @NotNull Range<T> range) {
+            this.name = name;
+            this.configName = configName;
+            this.range = range;
+            this.defValue = defValue;
+        }
+
+        @NotNull
+        public String getName() {
+            return this.name;
+        }
+
+        @NotNull
+        public String getConfigName() {
+            return this.configName;
+        }
+
+        @NotNull
+        public T getDefValue() {
+            return this.defValue;
+        }
+
+        public void setDefValue(T defValue) throws IllegalArgumentException {
+            if (!range.contains(defValue))
+                throw new IllegalArgumentException("defValue is not within bounds of range.");
+            this.defValue = defValue;
+        }
+
+        @NotNull
+        public Range<T> getAllowedRange() {
+            return this.range;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Stat) {
+                return this.getName().equals(((Stat<?>) obj).getName());
+            }
+            return false;
+        }
     }
 
-    private long dayStartTick = 0;
-    private long defaultDayLength = 12000;
+    private int dayStartTick = Stat.DAY_START_TICK.getDefValue();
+    private int defaultDayLength = Stat.DEFAULT_DAY_LENGTH.getDefValue();
 
-    private long dayLength = 24000;
-    private long nightLength = 7000;
-    private double allowSleep = 0.5;
-    private int sleepTimeMultiplier = 20;
-    private int stormTimeSubtrahend = 500;
-    private Set<UUID> sleepingPlayers = new HashSet<>();
+    private int dayLength = Stat.DAY_LENGTH.getDefValue();
+    private int nightLength = Stat.NIGHT_LENGTH.getDefValue();
+
+    private double neededSleepPercentage = Stat.NEEDED_SLEEP_PERCENTAGE.getDefValue();
+    private int nightTimeMultiplier = Stat.NIGHT_TIME_MULTIPLIER.getDefValue();
+    private int stormTimeMultiplier = Stat.STORM_TIME_MULTIPLIER.getDefValue();
 
     private boolean isChanged = false;
 
-    private static TimeWorld defTWorld = new TimeWorld();
-    public static void setDefTimeWorld(@NotNull TimeWorld tWorld) {
-        defTWorld = new TimeWorld(Objects.requireNonNull(tWorld));
+    public static void setDefValues(@NotNull TimeWorld tWorld) {
+        Stat.DEFAULT_DAY_LENGTH.setDefValue(tWorld.getDefaultDayLength());
+        Stat.DAY_START_TICK.setDefValue(tWorld.getDayStartTick());
+        Stat.DAY_LENGTH.setDefValue(tWorld.getDayLength());
+        Stat.NIGHT_LENGTH.setDefValue(tWorld.getNightLength());
+        Stat.NEEDED_SLEEP_PERCENTAGE.setDefValue(tWorld.getNeededSleepPercentage());
+        Stat.NIGHT_TIME_MULTIPLIER.setDefValue(tWorld.getNightTimeMultiplier());
+        Stat.STORM_TIME_MULTIPLIER.setDefValue(tWorld.getStormTimeMultiplier());
     }
 
     public TimeWorld() {}
 
-    public TimeWorld(long dayStartTick, long defaultDayLength, long dayLength, long nightLength, double allowSleepPercentage, int sleepTimeMultiplier, int stormTimeSubtrahend) {
+    public TimeWorld(int dayStartTick, int defaultDayLength, int dayLength, int nightLength, double neededSleepPercentage, int nightTimeMultiplier, int stormTimeMultiplier) {
         this.dayStartTick = dayStartTick;
         this.defaultDayLength = defaultDayLength;
-
         this.dayLength = dayLength;
         this.nightLength = nightLength;
-        this.allowSleep = allowSleepPercentage;
-        this.sleepTimeMultiplier = sleepTimeMultiplier;
-        this.stormTimeSubtrahend = stormTimeSubtrahend;
-    }
-
-    public TimeWorld(TimeWorld tWorld) {
-        this(tWorld.dayStartTick, tWorld.defaultDayLength,
-                tWorld.dayLength, tWorld.nightLength, tWorld.allowSleep, tWorld.sleepTimeMultiplier, tWorld.stormTimeSubtrahend);
-        this.sleepingPlayers = new HashSet<>();
-        this.isChanged = true;
+        this.neededSleepPercentage = neededSleepPercentage;
+        this.nightTimeMultiplier = nightTimeMultiplier;
+        this.stormTimeMultiplier = stormTimeMultiplier;
     }
 
     public boolean isChanged() {
         return this.isChanged;
     }
-    public long getDayStartTick() {
+    public int getDayStartTick() {
         return dayStartTick;
     }
-    public long getDefaultDayLength() {
+    public int getDefaultDayLength() {
         return defaultDayLength;
     }
-    public long getDayLength() {
+    public int getDayLength() {
         return dayLength;
     }
-    public long getNightLength() {
+    public int getNightLength() {
         return nightLength;
     }
-    public int getSleepTimeMultiplier() {
-        return sleepTimeMultiplier;
+    public double getNeededSleepPercentage() {
+        return this.neededSleepPercentage;
     }
-    public int getStormTimeSubtrahend() {
-        return stormTimeSubtrahend;
+    public int getNightTimeMultiplier() {
+        return nightTimeMultiplier;
     }
-
-    private boolean checkDefaultDayLength(long value) {
-        return dayStartTick + value <= 24000;
-    }
-    private boolean checkDayStartTick(long value) {
-        return Range.closed((long) 0, 24000 - defaultDayLength).contains(value);
-    }
-    private boolean checkLength(long value) {
-        return value > 0;
-    }
-    private boolean checkAllowSleep(double value) {
-        Range<Double> dRange = Range.closed(0.0, 1.0);
-        return dRange.contains(value);
-    }
-    private boolean checkSleepTimeMultiplier(int value) {
-        Range<Integer> range = Range.atLeast(0);
-        return range.contains(value);
-    }
-    private boolean checkStormTimeSubtrahend(int value) {
-        return Range.atLeast(-1).contains(value);
+    public int getStormTimeMultiplier() {
+        return stormTimeMultiplier;
     }
 
     public void setChanged(boolean changed) {
         isChanged = changed;
     }
-    public boolean setDayStartTick(long dayStartTick) {
-        if (this.checkDayStartTick(dayStartTick)) {
+    public boolean setDayStartTick(int dayStartTick) {
+        if (Stat.DAY_START_TICK.getAllowedRange().contains(dayStartTick)) {
             this.dayStartTick = dayStartTick;
             isChanged = true;
             return true;
         }
         return false;
     }
-    public boolean setDefaultDayLength(long defaultDayLength) {
-        if (this.checkDefaultDayLength(defaultDayLength)) {
+    public boolean setDefaultDayLength(int defaultDayLength) {
+        if (Stat.DEFAULT_DAY_LENGTH.getAllowedRange().contains(defaultDayLength)) {
             this.defaultDayLength = defaultDayLength;
             isChanged = true;
             return true;
         }
         return false;
     }
-    public boolean setDayLength(long dayLength) {
-        if (this.checkLength(dayLength)) {
+    public boolean setDayLength(int dayLength) {
+        if (Stat.DAY_LENGTH.getAllowedRange().contains(dayLength)) {
             this.dayLength = dayLength;
             isChanged = true;
             return true;
         }
         return false;
     }
-    public boolean setNightLength(long nightLength) {
-        if (this.checkLength(nightLength)) {
+    public boolean setNightLength(int nightLength) {
+        if (Stat.NIGHT_LENGTH.getAllowedRange().contains(nightLength)) {
             this.nightLength = nightLength;
             isChanged = true;
             return true;
         }
         return false;
     }
-    public boolean setAllowSleep(double allowSleep) {
-        if (this.checkAllowSleep(allowSleep)) {
-            this.allowSleep = allowSleep;
+    public boolean setNeededSleepPercentage(double allowSleep) {
+        if (Stat.NEEDED_SLEEP_PERCENTAGE.getAllowedRange().contains(neededSleepPercentage)) {
+            this.neededSleepPercentage = allowSleep;
             isChanged = true;
             return true;
         }
         return false;
     }
-    public boolean setSleepTimeMultiplier(int sleepTimeMultiplier) {
-        if (this.checkSleepTimeMultiplier(sleepTimeMultiplier)) {
-            this.sleepTimeMultiplier = sleepTimeMultiplier;
+    public boolean setNightTimeMultiplier(int multiplier) {
+        if (Stat.NIGHT_TIME_MULTIPLIER.getAllowedRange().contains(multiplier)) {
+            this.nightTimeMultiplier = multiplier;
             isChanged = true;
             return true;
         }
         return false;
     }
-    public boolean setStormTimeSubtrahend(int stormTimeSubtrahend) {
-        if (this.checkStormTimeSubtrahend(stormTimeSubtrahend)) {
-            this.stormTimeSubtrahend = stormTimeSubtrahend;
+    public boolean setStormTimeMultiplier(int multiplier) {
+        if (Stat.STORM_TIME_MULTIPLIER.getAllowedRange().contains(multiplier)) {
+            this.stormTimeMultiplier = multiplier;
             isChanged = true;
             return true;
         }
         return false;
-    }
-
-    public void addSleepingPlayer(Player p) {
-        if (!sleepingPlayers.contains(p.getUniqueId()) && allowSleep > 0) {
-            sleepingPlayers.add(p.getUniqueId());
-        }
-    }
-    public void removeSleepingPlayer(Player p) {
-        this.sleepingPlayers.remove(p.getUniqueId());
-    }
-
-    public int getAmountOfSleepingPlayers() {
-        return sleepingPlayers.size();
-    }
-
-    public boolean hasEnoughSleepingPlayers(int countOfAllPlayersInWorld, List<Player> sleepingIgnoredPlayers) {
-        int sleepingCount = this.getAmountOfSleepingPlayers();
-
-        // is at least one person actual sleeping?
-        if (sleepingCount <= 0)
-            return false;
-
-        // adding none sleeping sleeping-ignored players...
-        for (Player p : sleepingIgnoredPlayers) {
-            if (!sleepingPlayers.contains(p.getUniqueId()))
-                sleepingCount++;
-        }
-
-        return countOfAllPlayersInWorld * allowSleep <= sleepingCount;
     }
 
     public boolean isDay(long time) {
@@ -194,91 +213,78 @@ public class TimeWorld extends ConfigurationSerializableCheckable {
     @Override
     public @NotNull Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
-        map.put(configNames[0], this.getDayStartTick());
-        map.put(configNames[1], this.getDefaultDayLength());
-
-        map.put(configNames[2], this.getDayLength());
-        map.put(configNames[3], this.getNightLength());
-        map.put(configNames[4], this.allowSleep);
-        map.put(configNames[5], this.getSleepTimeMultiplier());
-        map.put(configNames[6], this.getStormTimeSubtrahend());
+        map.put(Stat.DAY_START_TICK.getConfigName(), this.getDayStartTick());
+        map.put(Stat.DEFAULT_DAY_LENGTH.getConfigName(), this.getDefaultDayLength());
+        map.put(Stat.DAY_LENGTH.getConfigName(), this.getDayLength());
+        map.put(Stat.NIGHT_LENGTH.getConfigName(), this.getNightLength());
+        map.put(Stat.NEEDED_SLEEP_PERCENTAGE.getConfigName(), this.getNeededSleepPercentage());
+        map.put(Stat.NIGHT_TIME_MULTIPLIER.getConfigName(), this.getNightTimeMultiplier());
+        map.put(Stat.STORM_TIME_MULTIPLIER.getConfigName(), this.getStormTimeMultiplier());
         return map;
     }
 
     @SuppressWarnings({"unused"})
     public static TimeWorld deserialize(Map<String, Object> map) {
+        TimeWorld defTimeWorld = new TimeWorld();
         return new TimeWorld(
-                (int) map.getOrDefault(configNames[0], defTWorld.dayStartTick),
-                (int) map.getOrDefault(configNames[1], defTWorld.defaultDayLength),
-                (int) map.getOrDefault(configNames[2], defTWorld.dayLength),
-                (int) map.getOrDefault(configNames[3], defTWorld.nightLength),
-                (double) map.getOrDefault(configNames[4], defTWorld.allowSleep),
-                (int) map.getOrDefault(configNames[5], defTWorld.sleepTimeMultiplier),
-                (int) map.getOrDefault(configNames[6], defTWorld.stormTimeSubtrahend));
+                (int) map.getOrDefault(Stat.DAY_START_TICK.getConfigName(), defTimeWorld.dayStartTick),
+                (int) map.getOrDefault(Stat.DEFAULT_DAY_LENGTH.getConfigName(), defTimeWorld.defaultDayLength),
+                (int) map.getOrDefault(Stat.DAY_LENGTH.getConfigName(), defTimeWorld.dayLength),
+                (int) map.getOrDefault(Stat.NIGHT_LENGTH.getConfigName(), defTimeWorld.nightLength),
+                (double) map.getOrDefault(Stat.NEEDED_SLEEP_PERCENTAGE.getConfigName(), defTimeWorld.neededSleepPercentage),
+                (int) map.getOrDefault(Stat.NIGHT_TIME_MULTIPLIER.getConfigName(), defTimeWorld.nightTimeMultiplier),
+                (int) map.getOrDefault(Stat.STORM_TIME_MULTIPLIER.getConfigName(), defTimeWorld.stormTimeMultiplier));
+    }
+
+    public <T extends Comparable<T>> boolean setValueByStat(Stat<T> stat, T value) {
+        if (stat.equals(Stat.DAY_START_TICK))
+            return this.setDayStartTick((Integer) value);
+        else if (stat.equals(Stat.DEFAULT_DAY_LENGTH))
+            return this.setDefaultDayLength((Integer) value);
+        else if (stat.equals(Stat.DAY_LENGTH))
+            return this.setDayLength((Integer) value);
+        else if (stat.equals(Stat.NIGHT_LENGTH))
+            return this.setNightLength((Integer) value);
+        else if (stat.equals(Stat.NEEDED_SLEEP_PERCENTAGE))
+            return this.setNeededSleepPercentage((Double) value);
+        else if (stat.equals(Stat.NIGHT_TIME_MULTIPLIER))
+            return this.setNightTimeMultiplier((Integer) value);
+        else if (stat.equals(Stat.STORM_TIME_MULTIPLIER))
+            return this.setStormTimeMultiplier((Integer) value);
+        return false;
+    }
+
+    private <T extends Comparable<T>> boolean checkValue(Stat<T> stat, T value, ConfigChecker checker, String sectionPath, ConsoleErrorType errorType, boolean overwriteValue) {
+        if (!stat.getAllowedRange().contains(value)) {
+            checker.attemptConsoleMsg(errorType, sectionPath, stat.getConfigName(), ConfigChecker.getRangeMsg(stat.getAllowedRange()));
+            if (overwriteValue)
+                this.setValueByStat(stat, value);
+            return false;
+        }
+        return true;
     }
 
     @Override
     public boolean checkValues(ConfigChecker checker, ConfigurationSection section, String path, ConsoleErrorType errorType, boolean overwriteValues) {
+        String sectionPath = section.getCurrentPath() + "." + path;
         boolean isCorrect = true;
 
-        String sectionPath = section.getCurrentPath() + "." + path;
-
-        Range<Long> range = Range.closedOpen((long) 0, (long) 24000);
-        if (!range.contains(defaultDayLength)) {
-            checker.attemptConsoleMsg(errorType, sectionPath, configNames[1], ConfigChecker.getRangeMsg(range));
+        if (!checkValue(Stat.DAY_START_TICK, this.dayStartTick, checker, sectionPath, errorType, overwriteValues))
             isCorrect = false;
-        }
-
-        range = Range.closed((long) 0, 24000 - defaultDayLength);
-        if (!range.contains(dayStartTick)) {
-            dayStartTick = defTWorld.dayStartTick;
-            checker.attemptConsoleMsg(errorType, sectionPath, configNames[0], dayStartTick, ConfigChecker.getRangeMsg(range));
+        if (!checkValue(Stat.DEFAULT_DAY_LENGTH, this.defaultDayLength, checker, sectionPath, errorType, overwriteValues))
             isCorrect = false;
-        }
-
-        range = Range.atLeast((long) 0);
-        if (dayLength <= 0) {
-            dayLength = defTWorld.dayLength;
-            checker.attemptConsoleMsg(errorType, sectionPath, configNames[2], dayLength, ConfigChecker.getRangeMsg(range));
+        if (!checkValue(Stat.DAY_LENGTH, this.dayLength, checker, sectionPath, errorType, overwriteValues))
             isCorrect = false;
-        }
-
-        if (nightLength <= 0) {
-            nightLength = defTWorld.nightLength;
-            checker.attemptConsoleMsg(errorType, sectionPath, configNames[3], nightLength, ConfigChecker.getRangeMsg(range));
+        if (!checkValue(Stat.NIGHT_LENGTH, this.nightLength, checker, sectionPath, errorType, overwriteValues))
             isCorrect = false;
-        }
-
-        Range<Double> dRange = Range.closed((double) 0, (double) 1);
-        if (!dRange.contains(allowSleep)) {
-            allowSleep = defTWorld.allowSleep;
-            checker.attemptConsoleMsg(errorType, sectionPath, configNames[4], allowSleep, ConfigChecker.getRangeMsg(dRange));
+        if (!checkValue(Stat.NEEDED_SLEEP_PERCENTAGE, this.neededSleepPercentage, checker, sectionPath, errorType, overwriteValues))
             isCorrect = false;
-        }
-
-        Range<Integer> iRange = Range.atLeast(0);
-        if (!iRange.contains(sleepTimeMultiplier)) {
-            sleepTimeMultiplier = defTWorld.sleepTimeMultiplier;
-            checker.attemptConsoleMsg(errorType, sectionPath, configNames[5], sleepTimeMultiplier, ConfigChecker.getRangeMsg(iRange));
+        if (!checkValue(Stat.NIGHT_TIME_MULTIPLIER, this.nightTimeMultiplier, checker, sectionPath, errorType, overwriteValues))
             isCorrect = false;
-        }
-
-        iRange = Range.atLeast(-1);
-        if (!iRange.contains(stormTimeSubtrahend)) {
-            stormTimeSubtrahend = defTWorld.stormTimeSubtrahend;
-            checker.attemptConsoleMsg(errorType, sectionPath, configNames[6], stormTimeSubtrahend, ConfigChecker.getRangeMsg(iRange));
+        if (!checkValue(Stat.STORM_TIME_MULTIPLIER, this.stormTimeMultiplier, checker, sectionPath, errorType, overwriteValues))
             isCorrect = false;
-        }
 
-        if (allowSleep == 1 && (sleepTimeMultiplier != 0 || stormTimeSubtrahend != -1)) {
-            checker.attemptConsoleMsg(errorType, sectionPath, configNames[4] + " & " + configNames[5], "Please be aware that " + configNames[4] + " set to 1 / " + configNames[6] + " set to -1 will always skip the night/the storm instantly.");
-        }
-
-        if (!isCorrect) {
-            isChanged = true;
-            return false;
-        }
-        return true;
+        return isCorrect;
     }
 
     @Override
@@ -287,20 +293,18 @@ public class TimeWorld extends ConfigurationSerializableCheckable {
                 + ", MDL = " + this.defaultDayLength
                 + ", DL = " + this.dayLength
                 + ", NL = " + this.nightLength
-                + ", NSP = " + this.allowSleep
-                + ", STM = " + this.sleepTimeMultiplier
-                + ", STS = " + this.stormTimeSubtrahend
-                + ", CS = " + this.getAmountOfSleepingPlayers();
+                + ", NSP = " + this.neededSleepPercentage
+                + ", STM = " + this.nightTimeMultiplier
+                + ", STS = " + this.stormTimeMultiplier;
     }
 
     public static String getPrefixes() {
-        return "MDS = " + configNames[0]
-                + ", MDL = " + configNames[1]
-                + ", DL = " + configNames[2]
-                + ", NL = " + configNames[3]
-                + ", NSP = " + configNames[4]
-                + ", STM = " + configNames[5]
-                + ", STS = " + configNames[6]
-                + ", CS = current sleeping players";
+        return "MDS = " + Stat.DAY_START_TICK.getConfigName()
+                + ", MDL = " + Stat.DEFAULT_DAY_LENGTH.getConfigName()
+                + ", DL = " + Stat.DAY_LENGTH.getConfigName()
+                + ", NL = " + Stat.NIGHT_LENGTH.getConfigName()
+                + ", NSP = " + Stat.NEEDED_SLEEP_PERCENTAGE.getConfigName()
+                + ", NTM = " + Stat.NIGHT_TIME_MULTIPLIER.getConfigName()
+                + ", STM = " + Stat.STORM_TIME_MULTIPLIER.getConfigName();
     }
 }

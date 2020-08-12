@@ -2,7 +2,7 @@
 # By using this plugin you can control the daycycle of minecraft.
 
 # Set this to true if you are finished with configuration. Then restart your server.
-# Note: After restarting the plugin will proceed to disable gamerule do_daylight_cycle of all worlds which where not disabled down below.
+# Note: After restarting the plugin will proceed to disable gamerule doDaylightCycle of all worlds which where not disabled down below.
 configured: false
 
 # Set the delay between to time updates in ticks.
@@ -13,15 +13,15 @@ deactivate_empty_worlds: true
 
 # If no other values are set correctly in the worldConfiguration.yml for a enabled world these values will be applied for this world.
 # For 99% of people the minecraft-... options are completely irrelevant. If you want to in- or decrease day or night, just edit day-length and night-length.
-# For more information please visit the plugin's page at https://www.spigotmc.org/resources/timecontrol-1-13-x-1-14-x-50-off-for-the-first-10-buyers.70363/ and look under How-To
+# For more information please visit the plugin's wiki at https://github.com/Alex39099/TimeControl/wiki
 default_world_settings:
   minecraft-day-start-tick: 0
   minecraft-day-length: 12000
   day-length: 24000
   night-length: 7000
   needed-sleep-percentage: 0.5
-  sleeping-time-multiplier: 20
-  storm-time-subtrahend: 500
+  sleeping-night-time-mulitplier: 20
+  sleeping-storm-time-mulitplier: 60
 
 # Disable certain worlds by name or environment.
 world_exceptions:
@@ -46,18 +46,25 @@ essentials:
   afk_is_sleeping: false
 
 messages:
-  credits: "Use /timecontrol help for all available commands."
-  help:
-    header: "List of all available commands:"
-    reload: "Reloads the plugin."
-    set: "Sets the specified option."
-    debug: "Shows some debug messages."
-    uninstall: "Re-enables all gamerules and disables the plugin."
-  noPerm: "&4You do not have permission."
-  wrongCmdUsage:
-    prefix: "&CUsage:"
-    noSubCmd: "&CNo such (sub-)command. Use /timecontrol help for all available commands."
-  setCmd:
-    success: "&2value successfully changed."
-    invalidValue: "&Cvalue is not allowed for that option."
+  cmd:
+    credits: "Use /timecontrol help for all available commands."
+    help_header: "List of all available commands:"
+    noPerm: "&4You do not have permission."
+    wrongCmdUsagePrefix: "&CUsage:"
 
+  # Messages regarding the sleeping mechanics.
+  # Available placeholders:
+  ## %sleep_needed% - Amount of needed sleeping players. (not available for sleeping.actionBar.msg.success)
+  ## %sleep_sleeping% - Amount of actual sleeping players. (not sleeping ignored in any way) (not available for sleeping.actionBar.msg.success)
+  ## %player% - the player's displayed name. (only available in sleeping.chat.msg)
+  sleeping:
+    actionBar:
+      enable: true
+      msg:
+        success: "&eSweet dreams everyone!"
+        progress: "&e%sleep_sleeping% of %sleep_needed% players are sleeping."
+    chat:
+      enable: true
+      msg:
+        enterBed: "%player% is now sleeping. (%sleep_sleeping%/%sleep_needed%)"
+        leaveBed: "%player% left bed. (%sleep_sleeping%/%sleep_needed%)"
