@@ -6,7 +6,7 @@
 
     <groupId>me.alexqp</groupId>
     <artifactId>timecontrol</artifactId>
-    <version>4.0.2</version>
+    <version>4.0.3</version>
     <name>TimeControl</name>
     <url>https://www.spigotmc.org/members/alex_qp.306806/</url>
     <description>This plugin allows you to change the length of a day and/or night.</description>
