@@ -33,6 +33,7 @@ world_exceptions:
     normal: false
     nether: true
     the_end: true
+    custom: true
 
 # Set to true if you want players in the specific gamemode to be counted as sleeping.
 gamemode_sleeping:
