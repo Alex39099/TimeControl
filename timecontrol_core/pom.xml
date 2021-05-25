@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.github.Alex39099</groupId>
             <artifactId>Commons</artifactId>
-            <version>v1.8.1</version>
+            <version>v1.8.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
