@@ -18,6 +18,7 @@ import com.github.alexqp.timecontrol.data.TimeWorld;
 import com.github.alexqp.timecontrol.data.WorldContainer;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 
 public class TimeControl extends JavaPlugin implements Debugable {
@@ -47,8 +48,8 @@ public class TimeControl extends JavaPlugin implements Debugable {
         try {
             String packageName = TimeControl.class.getPackage().getName();
             String internalsName = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-            internals = (InternalsProvider) Class.forName(packageName + "." + internalsName).newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException exception) {
+            internals = (InternalsProvider) Class.forName(packageName + "." + internalsName).getDeclaredConstructor().newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | NoSuchMethodException | InvocationTargetException exception) {
             Bukkit.getLogger().log(Level.SEVERE, "TimeControl could not find a valid implementation for this server version.");
             internals = new InternalsProvider();
         }
@@ -62,7 +63,7 @@ public class TimeControl extends JavaPlugin implements Debugable {
 
     @Override
     public void onEnable() {
-        new Metrics(this);
+        new Metrics(this, 	3195);
         this.getLogger().info("This plugin was made by alex_qp.");
         new BukkitRunnable() {
             @Override

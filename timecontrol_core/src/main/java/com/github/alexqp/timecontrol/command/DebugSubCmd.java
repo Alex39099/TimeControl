@@ -1,6 +1,6 @@
 package com.github.alexqp.timecontrol.command;
 
-import com.github.alexqp.commons.command.better.AlexSubCommand;
+import com.github.alexqp.commons.command.AlexSubCommand;
 import com.github.alexqp.timecontrol.data.TimeWorld;
 import com.github.alexqp.timecontrol.data.WorldContainer;
 import net.md_5.bungee.api.ChatColor;
