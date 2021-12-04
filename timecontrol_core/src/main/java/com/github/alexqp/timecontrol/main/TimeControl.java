@@ -3,7 +3,7 @@ package com.github.alexqp.timecontrol.main;
 import com.github.alexqp.timecontrol.command.TimeControlCommand;
 import com.github.alexqp.timecontrol.sleep_mechanic.SleepManager;
 import com.google.common.collect.Range;
-import com.github.alexqp.commons.bstats.Metrics;
+import com.github.alexqp.commons.bstats.bukkit.Metrics;
 import com.github.alexqp.commons.config.ConfigChecker;
 import com.github.alexqp.commons.config.ConsoleErrorType;
 import com.github.alexqp.commons.messages.ConsoleMessage;
@@ -63,7 +63,7 @@ public class TimeControl extends JavaPlugin implements Debugable {
 
     @Override
     public void onEnable() {
-        new Metrics(this, 	3195);
+        new Metrics(this); // id 3195
         this.getLogger().info("This plugin was made by alex_qp.");
         new BukkitRunnable() {
             @Override
