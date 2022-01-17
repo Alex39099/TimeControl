@@ -24,8 +24,10 @@ import java.util.logging.Level;
 public class TimeControl extends JavaPlugin implements Debugable {
 
     /*
-     * Changelog v4.0.0+:
+     * Changelog v4.1.1+:
      *
+     * Fixed: java error was thrown for wrong configurations regarding the default_world_settings instead of precise console message.
+     * \TODO MC 1.17 and onwards we have game rule playersSleepingPercentage -> set > 100 to prevent players from leaving the bed early.
      */
 
     private boolean debug = false;

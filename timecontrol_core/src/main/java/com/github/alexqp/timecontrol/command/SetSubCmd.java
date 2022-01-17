@@ -24,9 +24,9 @@ import java.util.Objects;
 
 public class SetSubCmd extends AlexSubCommand {
 
-    private WorldContainer worldContainer;
+    private final WorldContainer worldContainer;
 
-    private BaseComponent success;
+    private final BaseComponent success;
 
     SetSubCmd(@NotNull AlexSubCommand parent, @NotNull WorldContainer worldContainer) {
         super("set", "sets the specified option.", parent);

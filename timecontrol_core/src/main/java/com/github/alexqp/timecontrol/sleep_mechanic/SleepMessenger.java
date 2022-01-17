@@ -54,18 +54,18 @@ public class SleepMessenger {
         return sleepMessenger;
     }
 
-    private JavaPlugin plugin;
+    private final JavaPlugin plugin;
     private BaseComponent prefix = new TextComponent();
 
-    private String actionBarPermission = "timecontrol.sleep.actionbar";
-    private String chatPermission = "timecontrol.sleep.chat";
+    private final String actionBarPermission = "timecontrol.sleep.actionbar";
+    private final String chatPermission = "timecontrol.sleep.chat";
 
     private BaseComponent[] actionBarMsgSuccess;
     private String actionBarMsgProgress;
     private String enterBedMsg;
     private String leaveBedMsg;
 
-    private HashSet<String> msgCooldownWorlds = new HashSet<>();
+    private final HashSet<String> msgCooldownWorlds = new HashSet<>();
 
     public SleepMessenger(@NotNull JavaPlugin plugin) {
         this.plugin = plugin;

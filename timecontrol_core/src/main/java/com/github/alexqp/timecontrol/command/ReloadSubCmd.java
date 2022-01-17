@@ -12,8 +12,8 @@ import java.util.List;
 
 public class ReloadSubCmd extends AlexSubCommand {
 
-    private TimeControl plugin;
-    private BaseComponent success;
+    private final TimeControl plugin;
+    private final BaseComponent success;
 
     ReloadSubCmd(@NotNull AlexSubCommand parent, @NotNull TimeControl plugin) {
         super("reload", "reloads the plugin.", parent);

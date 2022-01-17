@@ -18,9 +18,9 @@ import java.util.List;
 
 public class DebugSubCmd extends AlexSubCommand {
 
-    private WorldContainer worldContainer;
+    private final WorldContainer worldContainer;
 
-    private BaseComponent debugHeader;
+    private final BaseComponent debugHeader;
 
     DebugSubCmd(@NotNull AlexSubCommand parent, @NotNull JavaPlugin plugin, @NotNull WorldContainer worldContainer) {
         super("debug", "shows some debug messages.", parent);

@@ -50,11 +50,11 @@ public class WorldContainer {
         return new WorldContainer(plugin, internals, configWorlds, deactivateEmptyWorlds, defTimeWorld);
     }
 
-    private JavaPlugin plugin;
-    private String worldConfigFileName = "worldConfigurations";
+    private final JavaPlugin plugin;
+    private final String worldConfigFileName = "worldConfigurations";
 
-    private Map<String, TimeWorld> configWorldMap = new HashMap<>();
-    private boolean deactivateEmptyWorlds;
+    private final Map<String, TimeWorld> configWorldMap = new HashMap<>();
+    private final boolean deactivateEmptyWorlds;
 
     private WorldContainer(@NotNull JavaPlugin plugin, @NotNull InternalsProvider internals, @NotNull List<World> configWorlds, boolean deactivateEmptyWorlds, @NotNull TimeWorld defTimeWorld) {
         this.plugin = plugin;

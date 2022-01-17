@@ -25,7 +25,7 @@ public class TimeControlRunnable extends BukkitRunnable {
         ConsoleMessage.debug(TimeControlRunnable.class, plugin, "initialized TimeControlRunnable with speed " + speed);
     }
 
-    private int speed;
+    private final int speed;
 
     private TimeControlRunnable(int speed) {
         this.speed = speed;

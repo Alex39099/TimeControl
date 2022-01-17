@@ -20,17 +20,17 @@ public class SleepManager {
         return new SleepManager(plugin, container);
     }
 
-    private JavaPlugin plugin;
-    private WorldContainer worldContainer;
+    private final JavaPlugin plugin;
+    private final WorldContainer worldContainer;
 
-    private HashSet<String> softSleepingWorlds = new HashSet<>();
-    private HashSet<String> hardSleepingWorlds = new HashSet<>(); // i.e. worlds were everyone slept (and got kicked out of bed)
+    private final HashSet<String> softSleepingWorlds = new HashSet<>();
+    private final HashSet<String> hardSleepingWorlds = new HashSet<>(); // i.e. worlds were everyone slept (and got kicked out of bed)
 
-    private SleepObserver sleepObserver;
-    private SleepMessenger sleepMessenger;
+    private final SleepObserver sleepObserver;
+    private final SleepMessenger sleepMessenger;
 
-    private int worldUpdateDelay = 10;
-    private HashSet<String> onWorldUpdateCooldown = new HashSet<>();
+    private final int worldUpdateDelay = 10;
+    private final HashSet<String> onWorldUpdateCooldown = new HashSet<>();
 
     public SleepManager(@NotNull JavaPlugin plugin, @NotNull WorldContainer worldContainer) {
         this.plugin = plugin;

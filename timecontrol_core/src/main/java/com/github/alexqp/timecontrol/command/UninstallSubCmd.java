@@ -15,9 +15,9 @@ import java.util.List;
 
 public class UninstallSubCmd extends AlexSubCommand {
 
-    private JavaPlugin plugin;
-    private InternalsProvider internals;
-    private WorldContainer worldContainer;
+    private final JavaPlugin plugin;
+    private final InternalsProvider internals;
+    private final WorldContainer worldContainer;
 
     UninstallSubCmd(@NotNull AlexSubCommand parent, @NotNull JavaPlugin plugin, @NotNull InternalsProvider internals, @NotNull WorldContainer worldContainer) {
         super("uninstall", "Re-enables all gameRules and disables the plugin.", parent);

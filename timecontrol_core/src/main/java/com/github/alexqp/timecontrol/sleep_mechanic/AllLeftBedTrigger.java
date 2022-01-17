@@ -16,7 +16,7 @@ import java.util.*;
 
 public class AllLeftBedTrigger implements Listener {
 
-    private Map<String, Set<UUID>> bedLeaveMap = new HashMap<>();
+    private final Map<String, Set<UUID>> bedLeaveMap = new HashMap<>();
 
     public AllLeftBedTrigger(@NotNull JavaPlugin plugin, @NotNull SleepManager sleepManager, int period) {
         new BukkitRunnable() {

@@ -18,8 +18,8 @@ public class BedListener implements Listener {
 
     private final int sleepDelay = 101;
 
-    private JavaPlugin plugin;
-    private SleepObserver sleepObserver;
+    private final JavaPlugin plugin;
+    private final SleepObserver sleepObserver;
 
     private Map<String, Map<UUID, BukkitRunnable>> leaveBedPlayers = new HashMap<>();
 
