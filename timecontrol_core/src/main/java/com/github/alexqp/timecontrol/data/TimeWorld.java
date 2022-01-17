@@ -1,6 +1,5 @@
 package com.github.alexqp.timecontrol.data;
 
-import com.github.alexqp.commons.messages.ConsoleMessage;
 import com.google.common.collect.Range;
 import com.github.alexqp.commons.config.ConfigChecker;
 import com.github.alexqp.commons.config.ConfigurationSerializableCheckable;
@@ -256,9 +255,9 @@ public class TimeWorld implements ConfigurationSerializableCheckable {
 
     private <T extends Comparable<T>> boolean checkValue(Stat<T> stat, T value, ConfigChecker checker, String sectionPath, ConsoleErrorType errorType, boolean overwriteValue) {
         if (!stat.getAllowedRange().contains(value)) {
-            checker.attemptConsoleMsg(errorType, sectionPath, stat.getConfigName(), ConfigChecker.getRangeMsg(stat.getAllowedRange()));
+            checker.attemptConsoleMsg(errorType, sectionPath, stat.getConfigName(), stat.getDefValue(), ConfigChecker.getRangeMsg(stat.getAllowedRange()));
             if (overwriteValue)
-                this.setValueByStat(stat, value);
+                this.setValueByStat(stat, stat.getDefValue());
             return false;
         }
         return true;
