@@ -21,7 +21,7 @@ public class BedListener implements Listener {
     private final JavaPlugin plugin;
     private final SleepObserver sleepObserver;
 
-    private Map<String, Map<UUID, BukkitRunnable>> leaveBedPlayers = new HashMap<>();
+    private final Map<String, Map<UUID, BukkitRunnable>> leaveBedPlayers = new HashMap<>();
 
     public BedListener(@NotNull JavaPlugin plugin, @NotNull SleepObserver sleepObserver) {
         this.plugin = plugin;

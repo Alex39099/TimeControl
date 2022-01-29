@@ -45,13 +45,13 @@ public class SleepObserver implements Listener {
         return new SleepObserver(plugin, sleepManager, sleepingGameModes, useEssentialsAFK);
     }
 
-    private JavaPlugin plugin;
-    private SleepManager sleepManager;
+    private final JavaPlugin plugin;
+    private final SleepManager sleepManager;
 
-    private Collection<GameMode> sleepingGameModes;
+    private final Collection<GameMode> sleepingGameModes;
     private Essentials essentials = null;
 
-    private HashMap<String, HashSet<UUID>> allSleepingPlayers = new HashMap<>();
+    private final HashMap<String, HashSet<UUID>> allSleepingPlayers = new HashMap<>();
 
     public SleepObserver(@NotNull JavaPlugin plugin, @NotNull SleepManager sleepManager, @NotNull Collection<GameMode> sleepingGameModes, boolean useEssentialsAFK) {
         this.plugin = plugin;

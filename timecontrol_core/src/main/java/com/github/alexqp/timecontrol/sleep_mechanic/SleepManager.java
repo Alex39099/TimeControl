@@ -17,7 +17,7 @@ import java.util.Objects;
 public class SleepManager {
 
     public static SleepManager build(@NotNull JavaPlugin plugin, @NotNull WorldContainer container) {
-        return new SleepManager(plugin, container);
+        return new SleepManager(Objects.requireNonNull(plugin), Objects.requireNonNull(container));
     }
 
     private final JavaPlugin plugin;
@@ -32,7 +32,7 @@ public class SleepManager {
     private final int worldUpdateDelay = 10;
     private final HashSet<String> onWorldUpdateCooldown = new HashSet<>();
 
-    public SleepManager(@NotNull JavaPlugin plugin, @NotNull WorldContainer worldContainer) {
+    private SleepManager(@NotNull JavaPlugin plugin, @NotNull WorldContainer worldContainer) {
         this.plugin = plugin;
         this.worldContainer = worldContainer;
 
