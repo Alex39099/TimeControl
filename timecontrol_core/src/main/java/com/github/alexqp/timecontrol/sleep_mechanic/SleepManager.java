@@ -43,6 +43,7 @@ public class SleepManager {
     }
 
     public boolean isSleepObserved(@Nullable World world) {
+        //noinspection ConstantConditions
         return worldContainer.isLoaded(world) && worldContainer.getTimeWorldForWorld(world).getNeededSleepPercentage() > 0;
     }
 
@@ -50,8 +51,8 @@ public class SleepManager {
         return world != null && (hardSleepingWorlds.contains(world.getName()) || softSleepingWorlds.contains(world.getName()));
     }
 
-    public boolean isHardSleepingWorld(@Nullable World world) {
-        return world != null && hardSleepingWorlds.contains(world.getName());
+    public boolean isNotHardSleepingWorld(@Nullable World world) {
+        return world == null || !hardSleepingWorlds.contains(world.getName());
     }
 
     public void addSoftSleepingWorld(@Nullable World world) {
@@ -106,6 +107,7 @@ public class SleepManager {
     private int getNeeded(@Nullable World world) throws IllegalArgumentException {
         if (this.isSleepObserved(world)) {
             assert world != null;
+            //noinspection ConstantConditions
             return Math.max(1, (int) Math.ceil(sleepObserver.getNotSleeping(world) * worldContainer.getTimeWorldForWorld(world).getNeededSleepPercentage()));
         } else {
             throw new IllegalArgumentException("world is not sleep observed");
@@ -138,12 +140,12 @@ public class SleepManager {
         World world = p.getWorld();
         ConsoleMessage.debug(this.getClass(), plugin, "Removing sleeping player from world " + world.getName() + "...");
         if (this.isSleepObserved(world)) {
-            if (!this.isHardSleepingWorld(world)) {
+            if (this.isNotHardSleepingWorld(world)) {
                 if (this.onWorldUpdateCooldown.add(world.getName())) {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            if (!isHardSleepingWorld(world)) {
+                            if (isNotHardSleepingWorld(world)) {
                                 int needed = getNeeded(world);
                                 int sleeping = getSleeping(world);
                                 sleepMessenger.sendBedLeaveMsg(p, needed, sleeping);
@@ -159,7 +161,7 @@ public class SleepManager {
 
     public void updateWorld(@NotNull World world, int needed, int sleeping) {
         ConsoleMessage.debug(this.getClass(), plugin, "Updating world " + world.getName() + "...");
-        if (this.isSleepObserved(world) && !this.isHardSleepingWorld(world)) {
+        if (this.isSleepObserved(world) && this.isNotHardSleepingWorld(world)) {
             if (needed <= sleeping) {
                 sleepMessenger.sendSkipping(world);
                 this.setSoftSleeping(world, true);
