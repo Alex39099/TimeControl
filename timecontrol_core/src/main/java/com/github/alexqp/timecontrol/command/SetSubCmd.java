@@ -66,7 +66,7 @@ public class SetSubCmd extends AlexSubCommand {
         else
             world = ((Player) sender).getWorld();
 
-        if (world == null) {
+        if (world == null || worldContainer.isLoaded(world)) {
             sendMessage(sender, this.getPrefixMessage(new ComponentBuilder(args[startIndex + 2] + " is no valid world.").color(ChatColor.RED).create()));
             return false;
         }
@@ -78,6 +78,7 @@ public class SetSubCmd extends AlexSubCommand {
         }
 
         TimeWorld tWorld = worldContainer.getTimeWorldForWorld(world);
+        assert tWorld != null;
 
         if (sender.hasPermission(this.getPermission() + "." + option.getName())) {
             try {
@@ -139,7 +140,7 @@ public class SetSubCmd extends AlexSubCommand {
     protected @NotNull List<String> getTabCompletion(@NotNull CommandSender sender, @NotNull String label, @NotNull List<AlexSubCommand> previousCmds, @NotNull List<String> previousExtraArguments, @NotNull String[] args, int startIndex) {
         List<String> completions = new ArrayList<>();
         if (args.length > startIndex + 1) {
-            StringUtil.copyPartialMatches(args[startIndex + 1], new ArrayList<>(worldContainer.getConfigWorldNames()), completions);
+            StringUtil.copyPartialMatches(args[startIndex + 1], new ArrayList<>(worldContainer.getLoadedWorlds()), completions);
         }
         Collections.sort(completions);
         return completions;

@@ -67,11 +67,19 @@ public class TimeControl extends JavaPlugin implements Debugable {
         ConfigurationSerialization.registerClass(TimeWorld.class, "TimeWorld");
     }
 
+    private static TimeControl instance;
+
+    @NotNull
+    public static TimeControl getInstance() {
+        return instance;
+    }
+
     private WorldContainer worldContainer;
 
     @Override
     public void onEnable() {
         new Metrics(this); // id 3195
+        instance = this;
         this.getLogger().info("This plugin was made by alex_qp.");
         new BukkitRunnable() {
             @Override
@@ -85,7 +93,8 @@ public class TimeControl extends JavaPlugin implements Debugable {
         ConsoleMessage.debug((Debugable) this, "Reload command was executed");
         Bukkit.getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
-        worldContainer.save();
+        if (worldContainer != null)
+            worldContainer.save();
         this.onRealEnable();
     }
 

@@ -2,20 +2,19 @@ package com.github.alexqp.timecontrol.main;
 
 import org.bukkit.GameRule;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 public class InternalsProvider {
 
     public InternalsProvider() {}
 
-    public boolean disableDayLightCycle(World world) {
-        return world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+    public boolean handleGameRules(@NotNull World world, boolean enable) {
+        world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, enable ? 101 : 100);
+        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, enable);
+        return true;
     }
 
-    public boolean setDayLightCycle(World world, boolean value) {
-        Boolean gameRuleValue = world.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE);
-        if (gameRuleValue != null && gameRuleValue.equals(value)) {
-            return false;
-        }
-        return world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, value);
+    public boolean handleGameRules(@NotNull World world) {
+        return this.handleGameRules(world, false);
     }
 }

@@ -32,13 +32,11 @@ public class UninstallSubCmd extends AlexSubCommand {
     public boolean execute(@NotNull CommandSender sender, @NotNull String label,
                            @NotNull List<AlexSubCommand> previousCmds, @NotNull List<String> previousExtraArguments,
                            @NotNull String[] args, int startIndex) {
-        for (String worldName : worldContainer.getConfigWorldNames()) {
+        for (String worldName : worldContainer.getLoadedWorlds()) {
             World world = Bukkit.getServer().getWorld(worldName);
             if (world != null) {
-                if (internals.setDayLightCycle(world, true)) {
-                    plugin.getLogger().info("(re-)enabled doDayLightCycle for world " + worldName);
-                } else {
-                    ConsoleMessage.send(ConsoleErrorType.ERROR, plugin, "Could not re-enable doDayLightCycle for world " + worldName);
+                if (internals.handleGameRules(world, true)) {
+                    plugin.getLogger().info("(re-)enabled GameRules for world " + worldName);
                 }
             } else {
                 ConsoleMessage.debug(this.getClass(), plugin, "could not find a valid world for configWorld " + worldName);

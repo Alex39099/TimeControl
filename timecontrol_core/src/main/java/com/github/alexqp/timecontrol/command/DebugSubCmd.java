@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DebugSubCmd extends AlexSubCommand {
 
@@ -47,14 +48,14 @@ public class DebugSubCmd extends AlexSubCommand {
 
         sendMessage(sender, debugHeader);
         sendMessage(sender, this.getPrefixMessage(new TextComponent(headingsPrefix + "Current config and enabled worlds:")));
-        sendMessage(sender, this.getPrefixMessage(new TextComponent("ConfigWorlds = " + worldContainer.getConfigWorldNames())));
+        sendMessage(sender, this.getPrefixMessage(new TextComponent("ConfigWorlds = " + worldContainer.getLoadedWorlds())));
         sendMessage(sender, this.getPrefixMessage(new TextComponent("Enabled Worlds = " + this.getEnabledWorlds())));
         sendMessage(sender, this.getPrefixMessage(new TextComponent()));
         sendMessage(sender, this.getPrefixMessage(new TextComponent(headingsPrefix + "Current World-Data:")));
         sendMessage(sender, this.getPrefixMessage(new ComponentBuilder("Prefixes = ").color(ChatColor.YELLOW).append(TimeWorld.getPrefixes()).reset().create()));
         sendMessage(sender, this.getPrefixMessage(new TextComponent()));
-        for (String worldName : worldContainer.getConfigWorldNames()) {
-            sendMessage(sender, this.getPrefixMessage(new ComponentBuilder(worldName + ": ").color(ChatColor.YELLOW).append(worldContainer.getTimeWorldForWorld(worldName).toString()).reset().create()));
+        for (String worldName : worldContainer.getLoadedWorlds()) {
+            sendMessage(sender, this.getPrefixMessage(new ComponentBuilder(worldName + ": ").color(ChatColor.YELLOW).append(Objects.requireNonNull(worldContainer.getTimeWorldForWorld(worldName)).toString()).reset().create()));
         }
         return true;
     }

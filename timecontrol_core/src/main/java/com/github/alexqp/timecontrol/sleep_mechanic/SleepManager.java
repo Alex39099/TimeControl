@@ -43,7 +43,7 @@ public class SleepManager {
     }
 
     public boolean isSleepObserved(@Nullable World world) {
-        return worldContainer.isConfigEnabled(world) && worldContainer.getTimeWorldForWorld(Objects.requireNonNull(world)).getNeededSleepPercentage() > 0;
+        return worldContainer.isLoaded(world) && worldContainer.getTimeWorldForWorld(world).getNeededSleepPercentage() > 0;
     }
 
     public boolean isSleepingWorld(@Nullable World world) {

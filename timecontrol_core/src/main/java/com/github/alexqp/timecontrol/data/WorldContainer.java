@@ -6,11 +6,14 @@ import com.github.alexqp.commons.dataHandler.DataHandler;
 import com.github.alexqp.commons.dataHandler.LoadSaveException;
 import com.github.alexqp.commons.messages.ConsoleMessage;
 
+import com.github.alexqp.timecontrol.main.TimeControl;
 import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import com.github.alexqp.timecontrol.main.InternalsProvider;
@@ -18,95 +21,90 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class WorldContainer {
+public class WorldContainer implements Listener {
 
     public static WorldContainer build(@NotNull JavaPlugin plugin, @NotNull InternalsProvider internals, @NotNull TimeWorld defTimeWorld) {
         ConfigChecker configChecker = new ConfigChecker(plugin);
         boolean deactivateEmptyWorlds = configChecker.checkBoolean(plugin.getConfig(), "deactivate_empty_worlds", ConsoleErrorType.WARN, true);
+        HashSet<World.Environment> disabledEnvironments = new HashSet<>();
+        HashSet<String> disabledNames = new HashSet<>();
 
-        List<World> configWorlds = new ArrayList<>();
         ConfigurationSection worldExceptionSection = configChecker.checkConfigSection(plugin.getConfig(), "world_exceptions", ConsoleErrorType.ERROR);
         if (worldExceptionSection != null) {
-            List<String> excludedWorlds = worldExceptionSection.getStringList("by_name");
-
-            List<World.Environment> envList = new ArrayList<>();
+            disabledNames.addAll(worldExceptionSection.getStringList("by_name"));
             ConfigurationSection envSection = configChecker.checkConfigSection(worldExceptionSection, "by_environment", ConsoleErrorType.ERROR);
             if (envSection != null) {
                 for (World.Environment worldEnv : World.Environment.values()) {
-                    if (configChecker.checkBoolean(envSection, worldEnv.name().toLowerCase(), ConsoleErrorType.WARN, false))
-                        envList.add(worldEnv);
-                }
-            }
-
-            for (World world : Bukkit.getWorlds()) {
-                if (!excludedWorlds.contains(world.getName()) && !envList.contains(world.getEnvironment())) {
-                    ConsoleMessage.debug(WorldContainer.class, plugin, "added world " + world.getName() + " to configWorlds.");
-                    configWorlds.add(world);
-                } else {
-                    ConsoleMessage.debug(WorldContainer.class, plugin, "did not add " + world.getName() + " to configWorlds.");
+                    if (!configChecker.checkBoolean(envSection, worldEnv.name().toLowerCase(), ConsoleErrorType.WARN, false))
+                        disabledEnvironments.add(worldEnv);
                 }
             }
         }
-        return new WorldContainer(plugin, internals, configWorlds, deactivateEmptyWorlds, defTimeWorld);
+        return new WorldContainer(internals, deactivateEmptyWorlds, disabledEnvironments, disabledNames, defTimeWorld);
     }
 
     private final JavaPlugin plugin;
+    private final InternalsProvider internals;
     private final String worldConfigFileName = "worldConfigurations";
 
-    private final Map<String, TimeWorld> configWorldMap = new HashMap<>();
+    private final Map<String, TimeWorld> loadedTimeWorlds = new HashMap<>();
     private final boolean deactivateEmptyWorlds;
 
-    private WorldContainer(@NotNull JavaPlugin plugin, @NotNull InternalsProvider internals, @NotNull List<World> configWorlds, boolean deactivateEmptyWorlds, @NotNull TimeWorld defTimeWorld) {
-        this.plugin = plugin;
+    private final HashSet<World.Environment> disabledEnvironments;
+    private final HashSet<String> disabledNames;
+
+    private WorldContainer(@NotNull InternalsProvider internals,
+                               boolean deactivateEmptyWorlds, @NotNull HashSet<World.Environment> disabledEnvironments, @NotNull HashSet<String> disabledNames,
+                               @NotNull TimeWorld defTimeWorld) {
+        this.plugin = TimeControl.getInstance();
+        this.internals = internals;
         this.deactivateEmptyWorlds = deactivateEmptyWorlds;
+        this.disabledEnvironments = disabledEnvironments;
+        this.disabledNames = disabledNames;
         TimeWorld.setDefValues(defTimeWorld);
-        this.loadConfigWorldMap(internals, configWorlds);
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+        this.load();
     }
 
-    private void loadConfigWorldMap(@NotNull InternalsProvider internals, @NotNull List<World> configWorlds) {
+    private void load() {
+        for (World world : Bukkit.getWorlds()) {
+            this.load(world.getName());
+        }
+    }
+
+    @Nullable
+    private TimeWorld load(@NotNull String worldName) {
+        ConsoleMessage.debug(this.getClass(), plugin, "Trying to load tWorld for world " + worldName + "...");
+        if (loadedTimeWorlds.containsKey(worldName)) {
+            ConsoleMessage.debug(this.getClass(), plugin, "Skipped loading for world " + worldName + " (already loaded)");
+            return loadedTimeWorlds.get(worldName);
+        }
+        if (disabledNames.contains(worldName)) {
+            ConsoleMessage.debug(this.getClass(), plugin, "Skipped loading for world " + worldName + " (disabled by name)");
+            return null;
+        }
+
+        World world = Bukkit.getWorld(worldName);
+        if (world == null || disabledEnvironments.contains(world.getEnvironment())) {
+            ConsoleMessage.debug(this.getClass(), plugin, "Skipped loading for world " + worldName + " (not Bukkit-loaded or disabled by environment)");
+            return null;
+        }
+
         DataHandler dataHandler = new DataHandler(plugin);
         YamlConfiguration ymlFile = dataHandler.loadYmlFile(worldConfigFileName);
-        ConsoleMessage.debug(this.getClass(), plugin, "YMLFILE KEYSET = " + ymlFile.getKeys(true).toString());
-        boolean saveYmlFile = false;
-
         ConfigChecker configChecker = new ConfigChecker(plugin, ymlFile);
 
-        for (World world : configWorlds) {
-            TimeWorld tWorld = new TimeWorld();
-            String worldName = world.getName();
-            ConsoleMessage.debug(this.getClass(), plugin, "Trying to load tWorld for world " + worldName + "...");
-            if (!ymlFile.contains(worldName)) {
-                ConsoleMessage.debug(this.getClass(), plugin, "added world " + worldName + " to " + worldConfigFileName + " because it was not existent.");
-                ymlFile.set(worldName, new TimeWorld());
-                saveYmlFile = true;
-            } else {
-                TimeWorld checkerDefTimeWorld = new TimeWorld();
-                tWorld = configChecker.checkSerializable(ymlFile, worldName, ConsoleErrorType.WARN, checkerDefTimeWorld, true);
-
-                if (tWorld == checkerDefTimeWorld) {
-                    ConsoleMessage.debug(this.getClass(), plugin, "Could not load tWorld for world " + worldName + " from file (corrupt data)");
-                    ymlFile.set(worldName, new TimeWorld());
-                    saveYmlFile = true;
-                } else {
-                    ConsoleMessage.debug(this.getClass(), plugin, "Loaded tWorld for world " + worldName + " from file");
-                }
-            }
-
-            Boolean gameRuleValue = world.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE);
-            if (gameRuleValue == null || gameRuleValue) {
-                if (internals.disableDayLightCycle(world)) {
-                    plugin.getLogger().info("disabled " + GameRule.DO_DAYLIGHT_CYCLE.getName() + " for world " + worldName);
-                } else {
-                    ConsoleMessage.send(ConsoleErrorType.ERROR, plugin, worldConfigFileName, worldName, "game rule could not be disabled. (not loaded world)");
-                    continue;
-                }
-            }
-            configWorldMap.put(worldName, tWorld);
+        TimeWorld tWorld = new TimeWorld();
+        if (ymlFile.contains(worldName)) {
+            tWorld = configChecker.checkSerializable(ymlFile, worldName, ConsoleErrorType.WARN, new TimeWorld(), true);
+            ConsoleMessage.debug(this.getClass(), plugin, "Loaded world " + worldName + " of file.");
+        } else {
+            ConsoleMessage.debug(this.getClass(), plugin, "Loaded new data for world " + worldName + " and disabling gameRules");
+            tWorld.setChanged(true);
+            internals.handleGameRules(world);
         }
-
-        if (saveYmlFile) {
-            this.saveYmlFile(dataHandler, ymlFile);
-        }
+        loadedTimeWorlds.put(worldName, tWorld);
+        return tWorld;
     }
 
     private void saveYmlFile(DataHandler dataHandler, YamlConfiguration ymlFile) {
@@ -115,6 +113,7 @@ public class WorldContainer {
             ConsoleMessage.debug(this.getClass(), plugin, "saved " + worldConfigFileName);
         } catch (LoadSaveException e) {
             ConsoleMessage.send(ConsoleErrorType.ERROR, plugin, worldConfigFileName, "file", "File could not be saved. Please check writing ability of directory");
+            e.printStackTrace();
         }
     }
 
@@ -122,8 +121,8 @@ public class WorldContainer {
         DataHandler dataHandler = new DataHandler(plugin);
         YamlConfiguration ymlFile = dataHandler.loadYmlFile(worldConfigFileName);
         boolean saveYmlFile = false;
-        for (String worldName : configWorldMap.keySet()) {
-            TimeWorld tWorld = configWorldMap.get(worldName);
+        for (String worldName : loadedTimeWorlds.keySet()) {
+            TimeWorld tWorld = loadedTimeWorlds.get(worldName);
             if (tWorld.isChanged()) {
                 tWorld.setChanged(false);
                 ymlFile.set(worldName, tWorld);
@@ -135,9 +134,9 @@ public class WorldContainer {
             this.saveYmlFile(dataHandler, ymlFile);
     }
 
-    public boolean isConfigEnabled(@Nullable World world) {
+    public boolean isLoaded(@Nullable World world) {
         if (world != null)
-            return this.configWorldMap.containsKey(world.getName());
+            return this.loadedTimeWorlds.containsKey(world.getName());
         return false;
     }
 
@@ -147,22 +146,21 @@ public class WorldContainer {
         return false;
     }
 
-    public Set<String> getConfigWorldNames() {
-        return this.configWorldMap.keySet();
+    public Set<String> getLoadedWorlds() {
+        return this.loadedTimeWorlds.keySet();
     }
 
-    @NotNull public TimeWorld getTimeWorldForWorld(@NotNull World world) {
+    // this should load the data if not existent
+    @Nullable public TimeWorld getTimeWorldForWorld(@NotNull World world) {
         return this.getTimeWorldForWorld(world.getName());
     }
 
-    @NotNull public TimeWorld getTimeWorldForWorld(@NotNull String worldName) {
-        TimeWorld tWorld = configWorldMap.get(worldName);
-        if (tWorld == null) {
-            tWorld = new TimeWorld();
-            tWorld.setChanged(true);
-            configWorldMap.put(worldName, tWorld);
-            ConsoleMessage.debug(this.getClass(), plugin, "could not find TimeWorld for world " + worldName + ". Returned defTimeWorld and put data in map");
-        }
-        return tWorld;
+    @Nullable public TimeWorld getTimeWorldForWorld(@NotNull String worldName) {
+        return this.load(worldName);
+    }
+
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent e) {
+        this.load(e.getWorld().getName());
     }
 }

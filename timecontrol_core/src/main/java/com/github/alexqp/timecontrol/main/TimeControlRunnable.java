@@ -10,11 +10,15 @@ import com.github.alexqp.timecontrol.data.TimeWorld;
 import com.github.alexqp.timecontrol.data.WorldContainer;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+
 public class TimeControlRunnable extends BukkitRunnable {
 
     private static JavaPlugin plugin;
     private static WorldContainer worldContainer;
     private static SleepManager sleepManager;
+
+    private static HashMap<String, TimeControlRunnable> runningTimers = new HashMap<>();
 
     static void initialize(@NotNull JavaPlugin plugin, int speed, @NotNull WorldContainer worldContainer, @NotNull SleepManager sleepManager) {
         TimeControlRunnable.plugin = plugin;
@@ -32,9 +36,7 @@ public class TimeControlRunnable extends BukkitRunnable {
         this.runTaskTimer(plugin, 0L, speed);
     }
 
-    private void makeDayForWorld(World world) {
-        TimeWorld tWorld = worldContainer.getTimeWorldForWorld(world);
-
+    private void makeDayForWorld(World world, TimeWorld tWorld) {
         world.setTime(tWorld.getDayStartTick());
         this.setWeather(world, -1);
         sleepManager.setSleeping(world, false);
@@ -47,7 +49,7 @@ public class TimeControlRunnable extends BukkitRunnable {
 
     @Override
     public void run() {
-        for (String worldName : worldContainer.getConfigWorldNames()) {
+        for (String worldName : worldContainer.getLoadedWorlds()) {
             World world = Bukkit.getWorld(worldName);
             if (!worldContainer.isEnabled(world)) {
                 continue;
@@ -55,6 +57,7 @@ public class TimeControlRunnable extends BukkitRunnable {
 
             assert world != null;
             TimeWorld tWorld = worldContainer.getTimeWorldForWorld(world);
+            assert tWorld != null;
             long currentTime = world.getTime();
             int stormTime = world.getWeatherDuration();
 
@@ -75,7 +78,7 @@ public class TimeControlRunnable extends BukkitRunnable {
 
                 if (timeMultiplier == -1 || stormMultiplier == -1) {
                     ConsoleMessage.debug(this.getClass(), plugin, "Skipping of night or storm was set to vanilla behaviour while sleeping. Making day...");
-                    this.makeDayForWorld(world);
+                    this.makeDayForWorld(world, tWorld);
                     return;
                 }
             }
@@ -96,7 +99,7 @@ public class TimeControlRunnable extends BukkitRunnable {
             }
 
             if (sleepManager.isSleepingWorld(world) && !tWorld.isDay(currentTime) && tWorld.isDay(updatedTime)) {
-                this.makeDayForWorld(world);
+                this.makeDayForWorld(world, tWorld);
                 return;
             }
 
