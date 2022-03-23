@@ -25,7 +25,7 @@ public class InternalsProvider {
     }
 
     public boolean handleGameRules(@NotNull World world, boolean enable) {
-        world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, enable ? 101 : 100);
+        world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, enable ? 100 : 101);
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, enable);
         return true;
     }

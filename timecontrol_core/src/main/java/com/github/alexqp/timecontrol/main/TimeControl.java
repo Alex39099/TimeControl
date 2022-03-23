@@ -27,12 +27,13 @@ public class TimeControl extends JavaPlugin implements Debugable {
     /*
      * Changelog v4.1.1+:
      *
+     * Added: official support for MC 1.18.2
+     * Added: MC1.17+: nights will now always skip slowly instead of instantly.
+     * Added: MC1.17+: disabled vanilla action bar messages.
+     *
      * Fixed: java error was thrown for wrong configurations regarding the default_world_settings instead of precise console message.
-     * \TODO MC 1.17 and onwards we have game rule playersSleepingPercentage -> set > 100 to prevent players from leaving the bed early.
-     *   \TODO add UpdateChecker by mfnalex
-     *     \TODO check defaultInternalsVersions AFTER doing the change for 1.17+
      */
-    private static final Set<String> defaultInternalsVersions = Set.of("v1_13_R1", "v1_13_R2","v1_14_R1", "v1_15_R1", "v1_15_R2", "v1_16_R1", "v1_16_R2", "v1_16_R3", "v1_17_R1", "v1_18_R1");
+    private static final Set<String> defaultInternalsVersions = Set.of("v1_17_R1", "v1_18_R1", "v1_18_R2");
     private boolean debug = false;
 
     @Override

@@ -101,8 +101,8 @@ public class WorldContainer implements Listener {
         } else {
             ConsoleMessage.debug(this.getClass(), plugin, "Loaded new data for world " + worldName + " and disabling gameRules");
             tWorld.setChanged(true);
-            internals.handleGameRules(world);
         }
+        internals.handleGameRules(world); // has to be put outside because new gameRule is modified since v4.2.0
         loadedTimeWorlds.put(worldName, tWorld);
         return tWorld;
     }
