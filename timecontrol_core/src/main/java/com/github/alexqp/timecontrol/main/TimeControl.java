@@ -117,7 +117,7 @@ public class TimeControl extends JavaPlugin implements Debugable {
         }
 
         worldContainer = WorldContainer.build(this, internals, this.getDefTimeWorld());
-        SleepManager sleepManager = SleepManager.build(this, worldContainer);
+        SleepManager sleepManager = SleepManager.build(this, internals, worldContainer);
 
         int delay = configChecker.checkInt(this.getConfig(), "check-delay", ConsoleErrorType.WARN, 5, Range.greaterThan(0));
         TimeControlRunnable.initialize(this, delay, worldContainer, sleepManager);

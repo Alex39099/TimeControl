@@ -10,4 +10,8 @@ public class v1_16_R3 extends InternalsProvider {
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, enable);
         return true;
     }
+
+    public boolean needAllLeftBedTrigger() {
+        return true;
+    }
 }

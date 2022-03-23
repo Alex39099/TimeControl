@@ -61,7 +61,7 @@ public class SleepObserver implements Listener {
         if (useEssentialsAFK) {
             essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
             if (essentials == null) {
-                ConsoleMessage.send(ConsoleErrorType.ERROR, plugin, "Essentials could not be found despite essentials.afk_is_sleeping was active.");
+                ConsoleMessage.send(ConsoleErrorType.ERROR, plugin, "Essentials could not be found although essentials.afk_is_sleeping was active.");
             }
         }
 
@@ -95,11 +95,11 @@ public class SleepObserver implements Listener {
         return sleepManager.isSleepObserved(world);
     }
 
-    private boolean isSleepingIgnored(@NotNull Player p) {
-        return p.isSleepingIgnored()
-                || p.hasPermission("timecontrol.sleepingignored")
-                || sleepingGameModes.contains(p.getGameMode())
-                || (essentials != null && essentials.getUser(p).isAfk());
+    private boolean isNotSleepingIgnored(@NotNull Player p) {
+        return !p.isSleepingIgnored()
+                && !p.hasPermission("timecontrol.sleepingignored")
+                && !sleepingGameModes.contains(p.getGameMode())
+                && (essentials == null || !essentials.getUser(p).isAfk());
     }
 
     public int getSleeping(@NotNull World world) {
@@ -109,7 +109,7 @@ public class SleepObserver implements Listener {
     public int getNotSleeping(@NotNull World world) {
         int notSleepingPlayers = 0;
         for (Player p : world.getPlayers()) {
-            if (!this.isSleepingIgnored(p))
+            if (this.isNotSleepingIgnored(p))
                 notSleepingPlayers++;
         }
         return notSleepingPlayers;
@@ -132,7 +132,7 @@ public class SleepObserver implements Listener {
     }
 
     private void onPlayerWorldChange(@NotNull Player p, @Nullable World from) {
-        if (!this.isSleepingIgnored(p)) {
+        if (this.isNotSleepingIgnored(p)) {
             ConsoleMessage.debug(this.getClass(), plugin, "Player " + ConsoleMessage.getPlayerString(p) + " switched worlds. Updating...");
             sleepManager.updateWorld(from);
             sleepManager.updateWorld(p.getWorld());

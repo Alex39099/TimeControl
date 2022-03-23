@@ -1,7 +1,9 @@
 package com.github.alexqp.timecontrol.sleep_mechanic;
 
+import com.github.alexqp.commons.config.ConsoleErrorType;
 import com.github.alexqp.commons.messages.ConsoleMessage;
 import com.github.alexqp.timecontrol.data.WorldContainer;
+import com.github.alexqp.timecontrol.main.InternalsProvider;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -16,15 +18,15 @@ import java.util.Objects;
 
 public class SleepManager {
 
-    public static SleepManager build(@NotNull JavaPlugin plugin, @NotNull WorldContainer container) {
-        return new SleepManager(Objects.requireNonNull(plugin), Objects.requireNonNull(container));
+    public static SleepManager build(@NotNull JavaPlugin plugin, @NotNull InternalsProvider internals, @NotNull WorldContainer container) {
+        return new SleepManager(Objects.requireNonNull(plugin), Objects.requireNonNull(internals), Objects.requireNonNull(container));
     }
 
     private final JavaPlugin plugin;
     private final WorldContainer worldContainer;
 
     private final HashSet<String> softSleepingWorlds = new HashSet<>();
-    private final HashSet<String> hardSleepingWorlds = new HashSet<>(); // i.e. worlds were everyone slept (and got kicked out of bed)
+    private final HashSet<String> hardSleepingWorlds = new HashSet<>(); // i.e. worlds were everyone slept (and got kicked out of bed). Only used by AllLeftBedTrigger
 
     private final SleepObserver sleepObserver;
     private final SleepMessenger sleepMessenger;
@@ -32,14 +34,21 @@ public class SleepManager {
     private final int worldUpdateDelay = 10;
     private final HashSet<String> onWorldUpdateCooldown = new HashSet<>();
 
-    private SleepManager(@NotNull JavaPlugin plugin, @NotNull WorldContainer worldContainer) {
+    private SleepManager(@NotNull JavaPlugin plugin, @NotNull InternalsProvider internals, @NotNull WorldContainer worldContainer) {
         this.plugin = plugin;
         this.worldContainer = worldContainer;
 
         this.sleepObserver = SleepObserver.build(plugin, this);
         this.sleepMessenger = SleepMessenger.build(plugin);
 
-        Bukkit.getPluginManager().registerEvents(new AllLeftBedTrigger(plugin, this, worldUpdateDelay / 2), plugin);
+        if (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null) {
+            internals.disableSleepActionBar(plugin);
+        } else {
+            ConsoleMessage.send(ConsoleErrorType.WARN, plugin, "ProtocolLib is not installed on your server. Vanilla-Sleep-Messages will not be disabled");
+        }
+
+        if (internals.needAllLeftBedTrigger())
+            Bukkit.getPluginManager().registerEvents(new AllLeftBedTrigger(plugin, this, worldUpdateDelay / 2), plugin);
     }
 
     public boolean isSleepObserved(@Nullable World world) {
@@ -51,18 +60,18 @@ public class SleepManager {
         return world != null && (hardSleepingWorlds.contains(world.getName()) || softSleepingWorlds.contains(world.getName()));
     }
 
-    public boolean isNotHardSleepingWorld(@Nullable World world) {
+    private boolean isNotHardSleepingWorld(@Nullable World world) {
         return world == null || !hardSleepingWorlds.contains(world.getName());
     }
 
-    public void addSoftSleepingWorld(@Nullable World world) {
+    private void addSoftSleepingWorld(@Nullable World world) {
         if (this.isSleepObserved(world)) {
             assert world != null;
             softSleepingWorlds.add(world.getName());
         }
     }
 
-    public void removeSoftSleepingWorld(@Nullable World world) {
+    private void removeSoftSleepingWorld(@Nullable World world) {
         if (this.isSleepObserved(world)) {
             assert world != null;
             softSleepingWorlds.remove(world.getName());
@@ -77,7 +86,7 @@ public class SleepManager {
             sleepMessenger.setMsgCooldown(world, worldUpdateDelay);
     }
 
-    public void setSoftSleeping(@Nullable World world, boolean sleeping) {
+    private void setSoftSleeping(@Nullable World world, boolean sleeping) {
         if (this.isSleepObserved(world)) {
             assert world != null;
             if (sleeping) {
@@ -168,7 +177,6 @@ public class SleepManager {
             } else {
                 if (sleeping > 1)
                     sleepMessenger.sendProgress(world, needed, sleeping);
-
                 this.setSoftSleeping(world, false);
             }
         }

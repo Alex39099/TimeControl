@@ -4,8 +4,7 @@ version: ${project.parent.version}
 author: alexqp
 description: ${project.parent.description}
 api-version: "1.16"
-depend: [ProtocolLib]
-softdepend: [Essentials]
+softdepend: [Essentials, ProtocolLib]
 website: ${project.parent.url}
 
 commands:
