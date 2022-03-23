@@ -41,11 +41,7 @@ public class SleepManager {
         this.sleepObserver = SleepObserver.build(plugin, this);
         this.sleepMessenger = SleepMessenger.build(plugin);
 
-        if (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null) {
-            internals.disableSleepActionBar(plugin);
-        } else {
-            ConsoleMessage.send(ConsoleErrorType.WARN, plugin, "ProtocolLib is not installed on your server. Vanilla-Sleep-Messages will not be disabled");
-        }
+        internals.disableSleepActionBar(plugin);
 
         if (internals.needAllLeftBedTrigger())
             Bukkit.getPluginManager().registerEvents(new AllLeftBedTrigger(plugin, this, worldUpdateDelay / 2), plugin);
