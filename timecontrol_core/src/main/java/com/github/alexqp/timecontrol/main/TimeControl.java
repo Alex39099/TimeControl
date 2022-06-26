@@ -8,6 +8,8 @@ import com.github.alexqp.commons.config.ConfigChecker;
 import com.github.alexqp.commons.config.ConsoleErrorType;
 import com.github.alexqp.commons.messages.ConsoleMessage;
 import com.github.alexqp.commons.messages.Debugable;
+import com.jeff_media.updatechecker.UpdateCheckSource;
+import com.jeff_media.updatechecker.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -32,7 +34,7 @@ public class TimeControl extends JavaPlugin implements Debugable {
      * Fixed: NPE if custom login messages are used.
      * Fixed: NoClassDefFoundError if ProtocolLib was not installed.
      */
-    
+
     private static final Set<String> defaultInternalsVersions = Set.of("v1_17_R1", "v1_18_R1", "v1_18_R2", "v1_19_R1");
     private boolean debug = false;
 
@@ -79,9 +81,10 @@ public class TimeControl extends JavaPlugin implements Debugable {
 
     @Override
     public void onEnable() {
-        new Metrics(this, 3195); // id 3195
+        new Metrics(this, 3195);
         instance = this;
         this.getLogger().info("This plugin was made by alex_qp.");
+        this.updateChecker();
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -145,5 +148,22 @@ public class TimeControl extends JavaPlugin implements Debugable {
         }
         tWorld.checkValues(configChecker, this.getConfig(), defTimeWorldConfigName, ConsoleErrorType.WARN,true);
         return tWorld;
+    }
+
+    private void updateChecker() {
+        int spigotResourceID = 70363;
+        ConfigChecker configChecker = new ConfigChecker(this);
+        ConfigurationSection updateCheckerSection = configChecker.checkConfigSection(this.getConfig(), "updatechecker", ConsoleErrorType.ERROR);
+        if (updateCheckerSection != null && configChecker.checkBoolean(updateCheckerSection, "enable", ConsoleErrorType.WARN, true)) {
+            ConsoleMessage.debug((Debugable) this, "enabled UpdateChecker");
+
+            new UpdateChecker(this, UpdateCheckSource.SPIGOT, String.valueOf(spigotResourceID))
+                    .setDownloadLink(spigotResourceID)
+                    .setChangelogLink("https://www.spigotmc.org/resources/" + spigotResourceID + "/updates")
+                    .setDonationLink("https://paypal.me/alexqpplugins")
+                    .setNotifyOpsOnJoin(configChecker.checkBoolean(updateCheckerSection, "notify_op_on_login", ConsoleErrorType.WARN, true))
+                    .setNotifyByPermissionOnJoin("phantomspawncontrol.updatechecker")
+                    .checkEveryXHours(24).checkNow();
+        }
     }
 }

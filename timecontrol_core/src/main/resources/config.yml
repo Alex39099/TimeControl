@@ -69,3 +69,8 @@ messages:
       msg:
         enterBed: "%player% is now sleeping. (%sleep_sleeping%/%sleep_needed%)"
         leaveBed: "%player% left bed. (%sleep_sleeping%/%sleep_needed%)"
+
+# Options regarding the updateChecker (by mfnalex (https://github.com/JEFF-Media-GbR/Spigot-UpdateChecker))
+updatechecker:
+  enable: true
+  notify_op_on_login: true

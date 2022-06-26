@@ -21,6 +21,7 @@ permissions:
       timecontrol.debug: true
       timecontrol.set: true
       timecontrol.set.*: true
+      timecontrol.updatechecker: true
 
   timecontrol.reload:
     description: Allows you to reload the plugin.
@@ -79,3 +80,7 @@ permissions:
   timecontrol.sleep.chat:
     description: Allows to be notified by sleeping players via chat.
     default: true
+
+  timecontrol.updatechecker:
+    description: Get notified on login if a new update of the plugin exists.
+    default: false
