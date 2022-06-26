@@ -5,7 +5,7 @@
     <parent>
         <artifactId>timecontrol</artifactId>
         <groupId>me.alexqp</groupId>
-        <version>4.2.0</version>
+        <version>4.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,13 +31,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.18.1-R0.1-SNAPSHOT</version>
+            <version>1.19-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Alex39099</groupId>
             <artifactId>Commons</artifactId>
-            <version>45a18cdb1b</version>
+            <version>v1.10.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
