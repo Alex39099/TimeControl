@@ -1,13 +1,5 @@
 package com.github.alexqp.timecontrol.main;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.github.alexqp.commons.config.ConsoleErrorType;
 import com.github.alexqp.commons.messages.ConsoleMessage;
 import org.bukkit.Bukkit;
@@ -36,22 +28,7 @@ public class InternalsProvider {
 
     public void disableSleepActionBar(@NotNull JavaPlugin plugin) {
         if (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null) {
-            ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-            protocolManager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.CHAT) {
-                @Override
-                public void onPacketSending(PacketEvent e) {
-                    if (e.getPacketType().equals(PacketType.Play.Server.CHAT)) {
-                        PacketContainer packet = e.getPacket();
-                        for (WrappedChatComponent component : packet.getChatComponents().getValues()) {
-                            if (component.getJson().contains("\"translate\":\"sleep.not_possible\"")) {
-                                e.setCancelled(true);
-                                return;
-                            }
-                        }
-                    }
-                }
-            });
-            ConsoleMessage.debug(this.getClass(), plugin, "Disabled Vanilla-Sleep-Messages");
+            ProtocolLib.disableSleepActionBar(plugin);
         } else {
             ConsoleMessage.send(ConsoleErrorType.WARN, plugin, "ProtocolLib is not installed on your server. Vanilla-Sleep-Messages will not be disabled");
         }

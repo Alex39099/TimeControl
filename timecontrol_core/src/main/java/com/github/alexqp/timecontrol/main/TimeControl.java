@@ -25,15 +25,15 @@ import java.util.logging.Level;
 public class TimeControl extends JavaPlugin implements Debugable {
 
     /*
-     * Changelog v4.1.1+:
+     * Changelog v4.3.0:
      *
-     * Added: official support for MC 1.18.2
-     * Added: MC1.17+: nights will now always skip slowly instead of instantly.
-     * Added: MC1.17+: disabled vanilla action bar messages.
+     * Added: official support for MC 1.19.
      *
-     * Fixed: java error was thrown for wrong configurations regarding the default_world_settings instead of precise console message.
+     * Fixed: NPE if custom login messages are used.
+     * Fixed: NoClassDefFoundError if ProtocolLib was not installed.
      */
-    private static final Set<String> defaultInternalsVersions = Set.of("v1_17_R1", "v1_18_R1", "v1_18_R2");
+    
+    private static final Set<String> defaultInternalsVersions = Set.of("v1_17_R1", "v1_18_R1", "v1_18_R2", "v1_19_R1");
     private boolean debug = false;
 
     @Override
@@ -79,7 +79,7 @@ public class TimeControl extends JavaPlugin implements Debugable {
 
     @Override
     public void onEnable() {
-        new Metrics(this); // id 3195
+        new Metrics(this, 3195); // id 3195
         instance = this;
         this.getLogger().info("This plugin was made by alex_qp.");
         new BukkitRunnable() {
