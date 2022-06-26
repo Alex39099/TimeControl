@@ -18,7 +18,7 @@ public class TimeControlRunnable extends BukkitRunnable {
     private static WorldContainer worldContainer;
     private static SleepManager sleepManager;
 
-    private static HashMap<String, TimeControlRunnable> runningTimers = new HashMap<>();
+    private static final HashMap<String, TimeControlRunnable> runningTimers = new HashMap<>();
 
     static void initialize(@NotNull JavaPlugin plugin, int speed, @NotNull WorldContainer worldContainer, @NotNull SleepManager sleepManager) {
         TimeControlRunnable.plugin = plugin;
