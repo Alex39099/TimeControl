@@ -6,7 +6,7 @@
 
     <groupId>me.alexqp</groupId>
     <artifactId>timecontrol</artifactId>
-    <version>4.3.0</version>
+    <version>4.4.0</version>
     <name>TimeControl</name>
     <url>https://www.spigotmc.org/members/alex_qp.306806/</url>
     <description>This plugin allows you to change the length of a day and/or night.</description>
@@ -44,8 +44,12 @@
         </repository>
         <!-- Essentials Repo  -->
         <repository>
-            <id>ess-repo</id>
-            <url>https://ci.ender.zone/plugin/repository/everything/</url>
+            <id>essentials-releases</id>
+            <url>https://repo.essentialsx.net/releases/</url>
+        </repository>
+        <repository>
+            <id>paper-repo</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
         <!-- ProtocolLib Repo -->
         <repository>
