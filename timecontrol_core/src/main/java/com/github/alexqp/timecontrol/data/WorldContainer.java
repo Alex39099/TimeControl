@@ -35,7 +35,7 @@ public class WorldContainer implements Listener {
             ConfigurationSection envSection = configChecker.checkConfigSection(worldExceptionSection, "by_environment", ConsoleErrorType.ERROR);
             if (envSection != null) {
                 for (World.Environment worldEnv : World.Environment.values()) {
-                    if (!configChecker.checkBoolean(envSection, worldEnv.name().toLowerCase(), ConsoleErrorType.WARN, false))
+                    if (configChecker.checkBoolean(envSection, worldEnv.name().toLowerCase(), ConsoleErrorType.WARN, false))
                         disabledEnvironments.add(worldEnv);
                 }
             }
