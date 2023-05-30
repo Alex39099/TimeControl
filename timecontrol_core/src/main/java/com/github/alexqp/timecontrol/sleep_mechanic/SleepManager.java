@@ -1,6 +1,5 @@
 package com.github.alexqp.timecontrol.sleep_mechanic;
 
-import com.github.alexqp.commons.config.ConsoleErrorType;
 import com.github.alexqp.commons.messages.ConsoleMessage;
 import com.github.alexqp.timecontrol.data.WorldContainer;
 import com.github.alexqp.timecontrol.main.InternalsProvider;
