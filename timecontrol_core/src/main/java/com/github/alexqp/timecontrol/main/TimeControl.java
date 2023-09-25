@@ -62,6 +62,7 @@ public class TimeControl extends JavaPlugin implements Debugable {
                 Bukkit.getLogger().log(Level.INFO, TimeControl.class.getSimpleName() + " is using the latest implementation (last tested for " + defaultInternalsVersion + ").");
                 internals = new InternalsProvider();
             } else {
+                Bukkit.getLogger().log(Level.INFO, TimeControl.class.getSimpleName() + " is using the implementation for version " + internalsName + ".");
                 internals = (InternalsProvider) Class.forName(packageName + "." + internalsName).getDeclaredConstructor().newInstance();
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | NoSuchMethodException | InvocationTargetException exception) {
