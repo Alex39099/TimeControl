@@ -23,6 +23,11 @@ public class TimeControlCommand extends AlexCommand {
         ConfigChecker configChecker = new ConfigChecker(plugin);
         ConfigurationSection msgSection = configChecker.checkConfigSection(plugin.getConfig(), "messages.cmd", ConsoleErrorType.ERROR);
         if (msgSection != null) {
+            String prefix = configChecker.checkString(msgSection, "prefix", ConsoleErrorType.WARN, "");
+            assert prefix != null;
+            if (!prefix.isEmpty())
+                this.setPrefix(MessageTranslator.translateBukkitColorCodes(prefix));
+
             this.addCreditLine(MessageTranslator.translateBukkitColorCodes(Objects.requireNonNull(configChecker.checkString(msgSection, "credits", ConsoleErrorType.WARN, "Use /timecontrol help for all available commands."))));
             this.addHelpCmdHeaderLine(MessageTranslator.translateBukkitColorCodes(Objects.requireNonNull(configChecker.checkString(msgSection, "help_header", ConsoleErrorType.WARN, "List of all available commands:"))));
             this.setNoPermissionLine(MessageTranslator.translateBukkitColorCodes(Objects.requireNonNull(configChecker.checkString(msgSection, "noPerm", ConsoleErrorType.WARN, "&4You do not have permission."))));

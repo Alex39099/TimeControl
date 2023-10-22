@@ -48,6 +48,8 @@ essentials:
 
 messages:
   cmd:
+    # This is the prefix of all command message outputs. An empty string will result in the default prefix.
+    prefix: ""
     credits: "Use /timecontrol help for all available commands."
     help_header: "List of all available commands:"
     noPerm: "&4You do not have permission."
