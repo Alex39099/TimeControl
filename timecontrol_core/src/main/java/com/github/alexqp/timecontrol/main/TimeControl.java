@@ -37,7 +37,7 @@ public class TimeControl extends JavaPlugin implements Debugable {
      * Fixed: NoClassDefFoundError if ProtocolLib was not installed.
      */
 
-    private static final String defaultInternalsVersion = "v1_20_R1";
+    private static final String defaultInternalsVersion = "v1_20_R2";
     private boolean debug = false;
 
     @Override
