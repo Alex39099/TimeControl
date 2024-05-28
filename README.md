@@ -10,6 +10,8 @@ Information
 ------------
 [TimeControl](https://www.spigotmc.org/resources/timecontrol-1-13-x-1-16-x.70363/) is a Minecraft plugin developed by [Alex_qp](https://www.spigotmc.org/resources/authors/alex_qp.306806/). Its first release was on Jun 28, 2018 and was constantly improved and updated since then. On Sep 23, 2019 it re-released as a premium plugin and is sold on [Spigot](https://www.spigotmc.org/).
 
+Releases will only be marked on Spigot.
+
 Source
 ------
 Source code is currently available on [GitHub](https://github.com/Alex39099/TimeControl). Please respect the license.
