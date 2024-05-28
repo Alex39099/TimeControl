@@ -49,13 +49,14 @@ public class TimeControl extends JavaPlugin implements Debugable {
     /*
      * Changelog v4.3.0:
      *
-     * Added: official support for MC 1.19.
+     * Added: official support for MC 1.20.6
      *
-     * Fixed: NPE if custom login messages are used.
-     * Fixed: NoClassDefFoundError if ProtocolLib was not installed.
+     * Fixed: typo in config.yml regarding sleeping-night-time-multiplier and sleeping-day-time-multiplier
+     *
+     * You need Java 21 to run the plugin
      */
 
-    private static final String defaultInternalsVersion = "v1_20_R2";
+    private static final String defaultInternalsVersion = "v1_20_R3";
     private boolean debug = false;
 
     @Override
