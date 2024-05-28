@@ -20,8 +20,8 @@ default_world_settings:
   day-length: 24000
   night-length: 7000
   needed-sleep-percentage: 0.5
-  sleeping-night-time-mulitplier: 20
-  sleeping-storm-time-mulitplier: 60
+  sleeping-night-time-multiplier: 20
+  sleeping-storm-time-multiplier: 60
 
 # Disable certain worlds by name or environment.
 world_exceptions:
