@@ -3,7 +3,7 @@ TimeControl
 A Premium Resource by Alex_qp.
 ------------------------------
 
-TimeControl is a Minecraft plugin designed to give server owners more control over the day and night cycle of Minecraft. This repository is mainly to provide a wiki for all those who purchased the plugin on Spigot. Please see the [plugin's page on Spigot](https://www.spigotmc.org/resources/timecontrol-1-13-x-1-20-x.70363/) for more information.
+TimeControl is a Minecraft plugin designed to give server owners more control over the day and night cycle of Minecraft. Please see the [plugin's page on Spigot](https://www.spigotmc.org/resources/timecontrol-1-13-x-1-20-x.70363/) for more information.
 
 
 Information
