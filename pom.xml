@@ -37,15 +37,15 @@
     </properties>
 
     <modules>
-        <module>timecontrol_dist</module>
-        <module>timecontrol_craftbukkit_1_13_R1</module>
-        <module>timecontrol_craftbukkit_1_13_R2</module>
-        <module>timecontrol_craftbukkit_1_14_R1</module>
-        <module>timecontrol_craftbukkit_1_15_R1</module>
-        <module>timecontrol_core</module>
-        <module>timecontrol_craftbukkit_1_16_R1</module>
-        <module>timecontrol_craftbukkit_1_16_R2</module>
-        <module>timecontrol_craftbukkit_1_16_R3</module>
+        <module>timecontrol-dist</module>
+        <module>timecontrol-internals_1_13</module>
+        <module>timecontrol-internals_1_13_2</module>
+        <module>timecontrol-internals_1_14_4</module>
+        <module>timecontrol-internals_1_15_2</module>
+        <module>timecontrol-core</module>
+        <module>timecontrol-internals_1_16_1</module>
+        <module>timecontrol-internals_1_16_3</module>
+        <module>timecontrol-internals_1_16_5</module>
     </modules>
 
     <repositories>
