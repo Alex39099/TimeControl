@@ -24,16 +24,16 @@
 
     <groupId>me.alexqp</groupId>
     <artifactId>timecontrol</artifactId>
-    <version>4.7.0</version>
+    <version>4.8.0</version>
     <name>TimeControl</name>
     <url>https://www.spigotmc.org/members/alex_qp.306806/</url>
     <description>This plugin allows you to change the length of a day and/or night.</description>
     <packaging>pom</packaging>
     <properties>
         <buildNo/>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
     </properties>
 
     <modules>
